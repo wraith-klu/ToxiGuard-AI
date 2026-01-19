@@ -76,50 +76,50 @@ ToxiGuard-AI/
 cd backend
 python -m venv venv
 venv\Scripts\activate   # Windows
+
 2️⃣ Install dependencies
 pip install -r requirements.txt
+
 3️⃣ Environment variables
-Create file:
+Create file: backend/.env
 
-backend/.env
 Add:
-
 OPENROUTER_API_KEY=your_api_key_here
 OPENROUTER_MODEL=xiaomi/mimo-v2-flash:free
+```
+```
 4️⃣ Train ML model (only once)
-python train_model.py
-This generates:
+-> python train_model.py
 
+This generates:
 abuse_model.joblib
 label_encoder.joblib
+```
+```
 5️⃣ Run backend
 Option A (recommended):
+ -> python main.py
 
-python main.py
 Option B:
+ -> uvicorn app:app --host 0.0.0.0 --port 8090 --reload
 
-uvicorn app:app --host 0.0.0.0 --port 8090 --reload
-Backend runs at:
-
-http://127.0.0.1:8090
-Swagger API:
-
-http://127.0.0.1:8090/docs
+```
+```
+Backend runs at:- http://127.0.0.1:8090
+Swagger API:- http://127.0.0.1:8090/docs
+```
+```
 ⚛️ Frontend Setup
 1️⃣ Install dependencies
-cd frontend
-npm install
+ -> cd frontend
+ -> npm install
+
 2️⃣ Start frontend
-npm run dev
-Open browser:
+ -> npm run dev
+Open browser:- http://localhost:5173
+```
 
-http://localhost:5173
-▶️ Restart Frontend
-If UI breaks or new components are added:
-
-npm run dev
-(Stop previous process using CTRL + C if needed.)
-
+```
 🔗 API Usage
 Endpoint
 POST /predict
@@ -143,33 +143,29 @@ Response
   },
   "source": "rules"
 }
+```
+
 ⚠️ Common Issues & Fixes
+```
 ❌ Port not opening
-Run backend again:
+Run backend again:- python main.py or uvicorn app:app --host 0.0.0.0 --port 8090 --reload
+Open:- http://127.0.0.1:8090
 
-python main.py
-Open:
-
-http://127.0.0.1:8090
 ❌ Dependency conflicts (Node)
 If frontend fails:
-
 npm cache clean --force
 npm install
 npm run dev
-Recommended Node version:
 
-Node 18 LTS
+Recommended Node version:- Node 18 LTS
+
 ❌ ML model not loading
-If you see:
+If you see:- ML model load failed
+Run:- python train_model.py
 
-ML model load failed
-Run:
-
-python train_model.py
 ❌ CORS error
 Ensure backend is running before frontend.
-
+```
 📦 Production Build
 npm run build
 Output folder:
