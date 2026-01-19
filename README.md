@@ -166,13 +166,16 @@ Run:- python train_model.py
 ❌ CORS error
 Ensure backend is running before frontend.
 ```
+```
 📦 Production Build
 npm run build
 Output folder:
-
+```
+```
 frontend/dist
 👨‍💻 Author
 Developed by Saurabh Yadav.
 
 📜 License
 MIT License
+```
