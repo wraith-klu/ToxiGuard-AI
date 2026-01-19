@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+scikit-learn
+joblib
+nltk
+textblob
+openai
+python-dotenv

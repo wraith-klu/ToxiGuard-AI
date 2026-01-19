@@ -1,0 +1,65 @@
+# ============================
+# Python
+# ============================
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.sqlite3
+
+# Virtual environments
+venv/
+.env
+.env.*
+
+# ============================
+# ML Artifacts (optional)
+# Uncomment if you don't want to commit models
+# ============================
+
+# backend/*.joblib
+# backend/data/
+
+# ============================
+# Node / Frontend
+# ============================
+
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+yarn-error.log*
+
+# ============================
+# Build Artifacts
+# ============================
+
+build/
+coverage/
+
+# ============================
+# IDE / Editors
+# ============================
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ============================
+# OS Files
+# ============================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ============================
+# Temporary files
+# ============================
+
+*.tmp
+*.bak
+*.old

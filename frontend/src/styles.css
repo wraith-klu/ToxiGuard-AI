@@ -1,0 +1,469 @@
+/* =====================================================
+   GLOBAL RESET
+===================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+/* =====================================================
+   ROOT BACKGROUND (Streamlit Match)
+===================================================== */
+
+body {
+  background: radial-gradient(
+    circle at top,
+    #0f172a 0%,
+    #020617 45%,
+    #020617 100%
+  );
+  color: #e5e7eb;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont;
+  animation: appFade 0.4s ease-in;
+}
+
+/* =====================================================
+   APP LAYOUT
+===================================================== */
+
+.app-root {
+  max-width: 1200px;
+  margin: auto;
+  padding: 24px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* =====================================================
+   GLASS CONTAINER
+===================================================== */
+
+.glass {
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.14),
+    rgba(255,255,255,0.04)
+  );
+  border-radius: 26px;
+  padding: 26px;
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.05),
+    0 25px 60px rgba(0,0,0,0.55),
+    0 0 45px rgba(56,189,248,0.18);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.glass:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 35px 80px rgba(0,0,0,0.65),
+    0 0 60px rgba(99,102,241,0.45);
+}
+
+/* =====================================================
+   CONTROL BAR
+===================================================== */
+
+.control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.toggle input {
+  accent-color: #38bdf8;
+  transform: scale(1.2);
+}
+
+/* =====================================================
+   BUTTONS (Premium)
+===================================================== */
+
+.primary-btn {
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  color: #020617;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  border-radius: 999px;
+  padding: 0.75em 3em;
+  border: none;
+  cursor: pointer;
+  box-shadow:
+    0 10px 25px rgba(56,189,248,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.35);
+  transition: all 0.25s ease;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px) scale(1.06);
+  box-shadow:
+    0 20px 50px rgba(99,102,241,0.85);
+}
+
+/* =====================================================
+   TEXT AREA
+===================================================== */
+
+textarea {
+  width: 100%;
+  min-height: 150px;
+  resize: vertical;
+  background: rgba(2,6,23,0.94);
+  color: #f9fafb;
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 16px;
+  font-size: 1rem;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+textarea:focus {
+  outline: none;
+  border: 1px solid #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56,189,248,0.35);
+}
+
+textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* =====================================================
+   RESULT CARD
+===================================================== */
+
+.result-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.muted {
+  opacity: 0.7;
+}
+
+/* =====================================================
+   CONFIDENCE BAR
+===================================================== */
+
+.confidence-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 60px;
+  align-items: center;
+  gap: 12px;
+}
+
+progress {
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+progress::-webkit-progress-bar {
+  background-color: rgba(255,255,255,0.15);
+  border-radius: 999px;
+}
+
+progress::-webkit-progress-value {
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  border-radius: 999px;
+}
+
+/* =====================================================
+   HIGHLIGHTED TEXT
+===================================================== */
+
+.highlight-box {
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+/* =====================================================
+   META GRID
+===================================================== */
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  font-size: 0.9rem;
+}
+
+.meta-grid div {
+  background: rgba(255,255,255,0.08);
+  padding: 12px 14px;
+  border-radius: 14px;
+}
+
+/* =====================================================
+   ABUSIVE WORD TAG
+===================================================== */
+
+.abusive-word {
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 800;
+  box-shadow: 0 0 18px rgba(239,68,68,0.75);
+}
+
+/* =====================================================
+   SEVERITY BADGES
+===================================================== */
+
+.severity-low {
+  background: linear-gradient(135deg, #22c55e, #4ade80);
+  color: #022c22;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  box-shadow: 0 0 18px rgba(34,197,94,0.6);
+}
+
+.severity-medium {
+  background: linear-gradient(135deg, #facc15, #fb923c);
+  color: #3b1d00;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  box-shadow: 0 0 20px rgba(251,146,60,0.7);
+}
+
+.severity-high {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 900;
+  box-shadow: 0 0 25px rgba(239,68,68,0.9);
+  animation: dangerPulse 1.2s infinite alternate;
+}
+
+/* =====================================================
+   TOXIC GLOW PANEL
+===================================================== */
+
+.toxic-text {
+  background: rgba(239,68,68,0.12);
+  border-left: 4px solid #ef4444;
+  padding: 14px 18px;
+  border-radius: 16px;
+  box-shadow: 0 0 25px rgba(239,68,68,0.35);
+}
+
+/* =====================================================
+   ANIMATIONS
+===================================================== */
+
+@keyframes dangerPulse {
+  from {
+    box-shadow: 0 0 18px rgba(239,68,68,0.7);
+  }
+  to {
+    box-shadow: 0 0 35px rgba(239,68,68,1);
+  }
+}
+
+@keyframes appFade {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+/* KPI CARDS */
+
+.kpi-row {
+  display: flex;
+  gap: 20px;
+}
+
+.kpi-card {
+  flex: 1;
+  background: linear-gradient(
+    160deg,
+    rgba(56,189,248,0.25),
+    rgba(99,102,241,0.25)
+  );
+  padding: 26px;
+  border-radius: 26px;
+  text-align: center;
+  color: #f9fafb;
+  box-shadow:
+    0 18px 45px rgba(56,189,248,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.kpi-card h2 {
+  margin: 8px 0;
+  font-size: 2.2rem;
+  color: #ffffff;
+  text-shadow: 0 0 14px rgba(56,189,248,0.65);
+}
+/* ===========================
+   ABUSE TABLE
+=========================== */
+
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.abuse-table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.abuse-table th,
+.abuse-table td {
+  padding: 12px 14px;
+  text-align: left;
+}
+
+.abuse-table thead {
+  background: rgba(255,255,255,0.12);
+}
+
+.abuse-table tbody tr {
+  background: rgba(255,255,255,0.05);
+}
+
+.abuse-table tbody tr:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.abuse-table th {
+  font-weight: 700;
+  color: #e5e7eb;
+}
+
+.abuse-table td {
+  color: #f1f5f9;
+}
+
+/* ===========================
+   CHARTS
+=========================== */
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.toxicity-bar {
+  height: 14px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+.toxicity-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  transition: width 0.4s ease;
+}
+
+.toxicity-label {
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+/* ===========================
+   HISTORY PANEL
+=========================== */
+
+.history-panel {
+  max-height: 320px;
+  overflow: hidden;
+}
+
+.history-list {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.history-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.08);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.history-item:hover {
+  background: rgba(255,255,255,0.18);
+}
+
+.history-index {
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.history-text {
+  font-size: 0.85rem;
+  color: #e5e7eb;
+  line-height: 1.4;
+}
+
+/* ===========================
+   WORD CLOUD (PURE CSS)
+=========================== */
+
+.wordcloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  line-height: 1.4;
+}
+
+.wordcloud-word {
+  color: #38bdf8;
+  font-weight: 700;
+  cursor: default;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.wordcloud-word:hover {
+  color: #f97316;
+  transform: scale(1.2);
+}
