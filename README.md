@@ -11,7 +11,7 @@ ToxiGuard AI is a **real-time toxic content detection platform** built using:
 It detects abusive language, estimates toxicity, provides explanations, and visual analytics.
 
 ---
-
+```
 ## 📁 Project Structure
 
 ToxiGuard-AI/
@@ -50,7 +50,7 @@ ToxiGuard-AI/
 │
 └── README.md
 
-
+```
 ---
 
 ## 🚀 Features
