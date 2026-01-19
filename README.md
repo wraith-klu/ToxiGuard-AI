@@ -2,7 +2,6 @@
 
 **ToxiGuard AI** is a **real-time toxic content detection platform** that combines **Machine Learning + LLM intelligence + modern analytics UI** to detect abusive language, estimate toxicity, explain predictions, and visualize insights in real time.
 
----
 
 ## 🌐 Live Demo
 
@@ -15,7 +14,6 @@
 **GitHub Repository**
 👉 [https://github.com/wraith-klu/ToxiGuard-AI](https://github.com/wraith-klu/ToxiGuard-AI)
 
----
 
 ## 🧠 Tech Stack
 
@@ -25,7 +23,6 @@
 * 🤖 **LLM (OpenRouter)** — Context-aware moderation fallback
 * 📊 **Analytics** — KPI dashboard, charts, word clouds
 
----
 
 ## ✨ Key Features
 
@@ -41,7 +38,6 @@
 * ✅ Analysis history tracking
 * ✅ Premium glassmorphism UI
 
----
 
 ## 📁 Project Structure
 
@@ -82,7 +78,6 @@ ToxiGuard-AI/
 └── README.md
 ```
 
----
 
 ## 🧩 Backend Setup (Local)
 
@@ -94,7 +89,6 @@ python -m venv venv
 venv\Scripts\activate
 ```
 
----
 
 ### 2️⃣ Install dependencies
 
@@ -102,7 +96,7 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
----
+
 
 ### 3️⃣ Environment variables
 
@@ -119,7 +113,6 @@ OPENROUTER_API_KEY=your_api_key_here
 OPENROUTER_MODEL=xiaomi/mimo-v2-flash:free
 ```
 
----
 
 ### 4️⃣ Train ML model (run once)
 
@@ -134,7 +127,6 @@ abuse_model.joblib
 label_encoder.joblib
 ```
 
----
 
 ### 5️⃣ Run backend
 
@@ -154,8 +146,6 @@ Swagger Docs:
 http://127.0.0.1:8090/docs
 ```
 
----
-
 ## ⚛️ Frontend Setup (Local)
 
 ### 1️⃣ Install dependencies
@@ -165,7 +155,6 @@ cd frontend
 npm install
 ```
 
----
 
 ### 2️⃣ Environment variable
 
@@ -181,7 +170,6 @@ Add:
 VITE_BACKEND_URL=http://127.0.0.1:8090
 ```
 
----
 
 ### 3️⃣ Run frontend
 
@@ -195,7 +183,6 @@ Open browser:
 http://localhost:5173
 ```
 
----
 
 ## 🔗 API Usage
 
@@ -205,7 +192,7 @@ http://localhost:5173
 POST /predict
 ```
 
----
+
 
 ### Request
 
@@ -215,7 +202,6 @@ POST /predict
 }
 ```
 
----
 
 ### Response
 
@@ -235,7 +221,6 @@ POST /predict
 }
 ```
 
----
 
 ## ⚠️ Common Issues & Fixes
 
@@ -278,7 +263,6 @@ python train_model.py
 
 Ensure backend is running before frontend and correct backend URL is configured.
 
----
 
 ## 📦 Production Build
 
@@ -292,7 +276,6 @@ Output folder:
 frontend/dist
 ```
 
----
 
 ## 👨‍💻 Author
 
