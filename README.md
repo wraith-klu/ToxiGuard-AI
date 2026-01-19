@@ -169,10 +169,10 @@ Ensure backend is running before frontend.
 ```
 📦 Production Build
 npm run build
-Output folder:
+Output folder:- frontend/dist
+
 ```
 ```
-frontend/dist
 👨‍💻 Author
 Developed by Saurabh Yadav.
 
