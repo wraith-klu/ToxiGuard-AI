@@ -251,7 +251,6 @@ Verify:
 http://127.0.0.1:8090/docs
 ```
 
----
 
 ### ❌ Node dependency conflicts
 
@@ -267,7 +266,6 @@ Recommended Node version:
 Node 18 LTS
 ```
 
----
 
 ### ❌ ML model not loading
 
@@ -275,7 +273,6 @@ Node 18 LTS
 python train_model.py
 ```
 
----
 
 ### ❌ CORS or API not responding
 
@@ -301,7 +298,6 @@ frontend/dist
 
 **Saurabh Yadav**
 
----
 
 ## 📜 License
 
