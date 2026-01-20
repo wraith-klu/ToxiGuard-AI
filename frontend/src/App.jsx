@@ -9,6 +9,7 @@ import Charts from "./components/Charts";
 import AbuseTable from "./components/AbuseTable";
 import History from "./components/History";
 import WordClouds from "./components/WordClouds";
+import ToxicityChart from "./components/ToxicityChart";
 
 import "./styles.css";
 
@@ -19,25 +20,35 @@ export default function App() {
   const [realtime, setRealtime] = useState(true);
   const [history, setHistory] = useState([]);
 
+  // 📈 Live toxicity graph data
+  const [toxicityHistory, setToxicityHistory] = useState([]);
+
   // -------------------------------------------
   // Debounced Live Detection
   // -------------------------------------------
   useEffect(() => {
-    if (!realtime || !text.trim()) {
-      return;
-    }
+    if (!realtime || !text.trim()) return;
 
     const timer = setTimeout(async () => {
       try {
         setLoading(true);
         const res = await predictText(text);
         setResult(res);
+
+        // Push into toxicity graph
+        setToxicityHistory((prev) => [
+          ...prev.slice(-30),
+          {
+            time: new Date().toLocaleTimeString(),
+            value: Math.round(res.confidence * 100),
+          },
+        ]);
       } catch (err) {
         console.error("API error:", err);
       } finally {
         setLoading(false);
       }
-    }, 400); // debounce
+    }, 400);
 
     return () => clearTimeout(timer);
   }, [text, realtime]);
@@ -73,9 +84,33 @@ export default function App() {
   // Derived Metrics
   // -------------------------------------------
   const abusiveCount = result?.abusive_words?.length || 0;
-  const totalWords = text.trim()
-    ? text.trim().split(/\s+/).length
+
+  // ✅ Accurate word count from user input
+  const totalWords = text
+    ? text.trim().split(/\s+/).filter(Boolean).length
     : 0;
+
+  // -------------------------------------------
+  // ✅ Build Word Frequency (Abusive + Normal)
+  // -------------------------------------------
+  const buildWordFrequency = () => {
+    if (!text.trim()) return {};
+
+    const words = text
+      .toLowerCase()
+      .replace(/[^\w\s]/g, "")
+      .split(/\s+/)
+      .filter(Boolean);
+
+    const freq = {};
+    words.forEach((w) => {
+      freq[w] = (freq[w] || 0) + 1;
+    });
+
+    return freq;
+  };
+
+  const combinedWordFrequency = buildWordFrequency();
 
   return (
     <div className="app-root">
@@ -112,12 +147,17 @@ export default function App() {
         </div>
       )}
 
-      {/* Main Result */}
+      {/* 🔴 Main Result */}
       <LiveResult
         loading={loading}
         result={result}
         inputText={text}
       />
+
+      {/* 📈 Live Toxicity Trend (below toxic block) */}
+      {toxicityHistory.length > 0 && (
+        <ToxicityChart data={toxicityHistory} />
+      )}
 
       {/* Charts */}
       {result && (
@@ -136,10 +176,11 @@ export default function App() {
         />
       )}
 
-      {/* Word Clouds */}
-      {result && (
+      {/* ☁️ Word Cloud (Abusive + Normal Words) */}
+      {text && (
         <WordClouds
-          wordFrequency={result.word_frequency}
+          wordFrequency={combinedWordFrequency}
+          abusiveWords={result?.abusive_words || []}
         />
       )}
 

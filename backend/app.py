@@ -19,16 +19,16 @@ from utils.llm_guard import analyze_toxicity_llm
 app = FastAPI(
     title="ToxiGuard AI",
     description="Hybrid AI Toxic Content Detection API",
-    version="1.0.0"
+    version="2.0.0"
 )
 
 # =====================================================
-# CORS CONFIG (React / Vite)
+# CORS CONFIG
 # =====================================================
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # Restrict in production
+    allow_origins=["*"],   # lock in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -81,7 +81,7 @@ def build_response(
     severity: str,
     reason: str,
     abusive_words: list[str],
-    sentiment: dict,
+    sentiment: dict | None,
     source: str,
     ml: dict | None = None
 ):
@@ -131,73 +131,84 @@ def predict(req: TextRequest):
     clean_text = processed["clean_text"]
 
     # -------------------------------------------------
-    # RULE-BASED DETECTION (FAST)
+    # RULE-BASED DETECTION
     # -------------------------------------------------
 
     abusive_hits = detect_abusive_tokens(clean_text)
 
-    if abusive_hits:
-        sentiment = analyze_sentiment(clean_text)
-
-        return build_response(
-            toxic=True,
-            confidence=0.95,
-            severity="high",
-            reason="Matched abusive keywords",
-            abusive_words=abusive_hits,
-            sentiment=sentiment,
-            source="rules",
-            ml=None
-        )
+    rule_triggered = len(abusive_hits) > 0
 
     # -------------------------------------------------
-    # ML MODEL DETECTION (FAST)
+    # ML MODEL DETECTION
     # -------------------------------------------------
 
     ml_result = None
-    ml_confidence = 0.0
+    toxic_probability = 0.0
     ml_label = None
 
     if model and label_encoder:
         try:
             probs = model.predict_proba([clean_text])[0]
+            class_labels = list(label_encoder.classes_)
+
+            # ✅ Read probability of TOXIC class explicitly
+            if "toxic" in class_labels:
+                toxic_index = class_labels.index("toxic")
+                toxic_probability = float(probs[toxic_index])
+            else:
+                toxic_probability = float(max(probs))
+
             pred_idx = probs.argmax()
-            ml_confidence = float(probs[pred_idx])
             ml_label = label_encoder.inverse_transform([pred_idx])[0]
 
             ml_result = {
                 "label": ml_label,
-                "confidence": round(ml_confidence, 3)
+                "toxicity_probability": round(toxic_probability, 3)
             }
-
-            # High confidence ML decision
-            if ml_label.lower() in ("toxic", "abusive") and ml_confidence > 0.85:
-                sentiment = analyze_sentiment(clean_text)
-
-                return build_response(
-                    toxic=True,
-                    confidence=ml_confidence,
-                    severity="medium" if ml_confidence < 0.9 else "high",
-                    reason="ML model detected toxicity",
-                    abusive_words=[],
-                    sentiment=sentiment,
-                    source="ml",
-                    ml=ml_result
-                )
 
         except Exception as e:
             print("⚠️ ML prediction error:", e)
 
     # -------------------------------------------------
-    # LLM FALLBACK (SMART BUT SLOW)
+    # HYBRID DECISION LOGIC (RULE + ML TOGETHER)
     # -------------------------------------------------
 
-    llm_result = analyze_toxicity_llm(text)
     sentiment = analyze_sentiment(clean_text)
+
+    # 🔴 Strong rule hit always toxic
+    if rule_triggered:
+        combined_confidence = max(0.85, toxic_probability)
+
+        return build_response(
+            toxic=True,
+            confidence=combined_confidence,
+            severity="high" if combined_confidence > 0.9 else "medium",
+            reason="Matched abusive keywords",
+            abusive_words=abusive_hits,
+            sentiment=sentiment,
+            source="rules+ml",
+            ml=ml_result
+        )
+
+    # 🟠 ML detects contextual toxicity (sexual / implicit)
+    if toxic_probability >= 0.55:
+        return build_response(
+            toxic=True,
+            confidence=toxic_probability,
+            severity="medium" if toxic_probability < 0.8 else "high",
+            reason="ML detected contextual toxicity",
+            abusive_words=[],
+            sentiment=sentiment,
+            source="ml",
+            ml=ml_result
+        )
+
+    # 🟡 LLM fallback only when ML is unsure
+    llm_result = analyze_toxicity_llm(text)
 
     return build_response(
         toxic=llm_result.get("toxic", False),
-        confidence=llm_result.get("confidence", 0.0),
+        confidence=llm_result.get("confidence", 0.4),
         severity=llm_result.get("severity", "low"),
         reason=llm_result.get("reason", "LLM analysis"),
         abusive_words=[],
