@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { predictText } from "./api";
 
 import Header from "./components/Header";
@@ -23,16 +23,28 @@ export default function App() {
   // 📈 Live toxicity graph data
   const [toxicityHistory, setToxicityHistory] = useState([]);
 
+  // Used to prevent stale responses
+  const requestIdRef = useRef(0);
+
   // -------------------------------------------
-  // Debounced Live Detection
+  // ⚡ Real-Time Detection (Debounced + Safe)
   // -------------------------------------------
   useEffect(() => {
-    if (!realtime || !text.trim()) return;
+    if (!realtime || text.trim().length < 5) {
+      setResult(null);
+      return;
+    }
+
+    const currentRequestId = ++requestIdRef.current;
+    setLoading(true);
 
     const timer = setTimeout(async () => {
       try {
-        setLoading(true);
         const res = await predictText(text);
+
+        // Ignore stale responses
+        if (currentRequestId !== requestIdRef.current) return;
+
         setResult(res);
 
         // Push into toxicity graph
@@ -46,22 +58,29 @@ export default function App() {
       } catch (err) {
         console.error("API error:", err);
       } finally {
-        setLoading(false);
+        if (currentRequestId === requestIdRef.current) {
+          setLoading(false);
+        }
       }
-    }, 400);
+    }, 1200); // debounce delay
 
     return () => clearTimeout(timer);
   }, [text, realtime]);
 
   // -------------------------------------------
-  // Manual Analyze Button
+  // 🔍 Manual Analyze Button
   // -------------------------------------------
   const handleAnalyze = async () => {
     if (!text.trim()) return;
 
+    const currentRequestId = ++requestIdRef.current;
+
     try {
       setLoading(true);
       const res = await predictText(text);
+
+      if (currentRequestId !== requestIdRef.current) return;
+
       setResult(res);
 
       // Save history
@@ -76,7 +95,9 @@ export default function App() {
     } catch (err) {
       console.error("API error:", err);
     } finally {
-      setLoading(false);
+      if (currentRequestId === requestIdRef.current) {
+        setLoading(false);
+      }
     }
   };
 
@@ -85,13 +106,12 @@ export default function App() {
   // -------------------------------------------
   const abusiveCount = result?.abusive_words?.length || 0;
 
-  // ✅ Accurate word count from user input
   const totalWords = text
     ? text.trim().split(/\s+/).filter(Boolean).length
     : 0;
 
   // -------------------------------------------
-  // ✅ Build Word Frequency (Abusive + Normal)
+  // Build Word Frequency
   // -------------------------------------------
   const buildWordFrequency = () => {
     if (!text.trim()) return {};
@@ -148,13 +168,9 @@ export default function App() {
       )}
 
       {/* 🔴 Main Result */}
-      <LiveResult
-        loading={loading}
-        result={result}
-        inputText={text}
-      />
+      <LiveResult loading={loading} result={result} inputText={text} />
 
-      {/* 📈 Live Toxicity Trend (below toxic block) */}
+      {/* 📈 Live Toxicity Trend */}
       {toxicityHistory.length > 0 && (
         <ToxicityChart data={toxicityHistory} />
       )}
@@ -176,7 +192,7 @@ export default function App() {
         />
       )}
 
-      {/* ☁️ Word Cloud (Abusive + Normal Words) */}
+      {/* ☁️ Word Cloud */}
       {text && (
         <WordClouds
           wordFrequency={combinedWordFrequency}
@@ -185,10 +201,7 @@ export default function App() {
       )}
 
       {/* History Panel */}
-      <History
-        items={history}
-        onSelect={(value) => setText(value)}
-      />
+      <History items={history} onSelect={(value) => setText(value)} />
     </div>
   );
 }

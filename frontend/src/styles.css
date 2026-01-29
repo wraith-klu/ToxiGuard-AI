@@ -503,3 +503,36 @@ progress::-webkit-progress-value {
   color: #64748b;
   margin-top: 2px;
 }
+/* LLM Explanation Panel */
+.llm-explanation {
+  margin-top: 1rem;
+  padding: 1rem 1.2rem;
+  border-left: 4px solid #38bdf8;
+}
+
+.llm-explanation h4 {
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+  color: #7dd3fc;
+}
+
+.llm-explanation p {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  opacity: 0.95;
+}
+
+.llm-tags {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.llm-tags .tag {
+  background: rgba(56, 189, 248, 0.15);
+  color: #7dd3fc;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+}
