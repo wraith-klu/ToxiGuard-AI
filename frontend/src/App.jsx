@@ -36,7 +36,7 @@ export default function App() {
     }
 
     const currentRequestId = ++requestIdRef.current;
-    setLoading(true);
+    setLoading(false);
 
     const timer = setTimeout(async () => {
       try {
