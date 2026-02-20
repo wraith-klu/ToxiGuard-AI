@@ -9,7 +9,7 @@
 👉 [https://toxiguard-ai.vercel.app](https://toxiguard-ai.vercel.app)
 
 **Backend API (Render)**
-👉 [https://toxiguard-ai-backend.onrender.com/docs](https://toxiguard-ai-backend.onrender.com/docs)
+👉 [https://toxiguard-ai-backend.onrender.com/docs](https://toxiguard-ai-backend.onrender.com)
 
 **GitHub Repository**
 👉 [https://github.com/wraith-klu/ToxiGuard-AI](https://github.com/wraith-klu/ToxiGuard-AI)
