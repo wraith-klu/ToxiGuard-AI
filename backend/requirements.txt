@@ -1,41 +1,131 @@
+# ToxiGuard AI — Backend Python Dependencies
+# Production-grade requirements for Render / Docker / VPS
+
+# ------------------------------------------------------------------
+# WEB FRAMEWORK & SERVER
+# fastapi     — Async REST API framework
+# uvicorn     — ASGI server (with extras: websockets, http-tools)
+# pydantic    — Request/response validation (ships with FastAPI)
+# ------------------------------------------------------------------
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
+pydantic==2.12.5
+pydantic-core==2.41.5
 
-scikit-learn==1.5.1
+# ------------------------------------------------------------------
+# DATABASE & ORM
+# sqlalchemy  — ORM + query engine (SQLite dev / PostgreSQL prod)
+# psycopg2    — PostgreSQL driver (binary build, no C compile needed)
+# alembic     — Database migration engine
+# ------------------------------------------------------------------
+sqlalchemy==2.0.32
+psycopg2-binary==2.9.9
+alembic==1.13.2
+
+# ------------------------------------------------------------------
+# AUTHENTICATION & SECURITY
+# passlib[bcrypt]       — Password hashing (bcrypt scheme)
+# bcrypt                — Bcrypt backend for passlib
+# python-jose[cryptography] — JWT creation/verification
+# cryptography          — OpenSSL backend for jose
+# ------------------------------------------------------------------
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.0
+python-jose[cryptography]==3.3.0
+cryptography==43.0.1
+
+# ------------------------------------------------------------------
+# RATE LIMITING & MIDDLEWARE
+# slowapi  — FastAPI-compatible rate limiting (wraps limits)
+# limits   — Rate limit storage backends (memory, redis, etc.)
+# ------------------------------------------------------------------
+slowapi==0.1.9
+limits==3.13.0
+
+# ------------------------------------------------------------------
+# MACHINE LEARNING — CORE CLASSIFIER
+# scikit-learn — TF-IDF + Logistic Regression pipeline
+# joblib       — Model serialization & parallel processing
+# numpy        — Numerical computing base
+# scipy        — Sparse matrices for TF-IDF
+# ------------------------------------------------------------------
+scikit-learn==1.7.2
 joblib==1.4.2
+numpy==1.26.4
+scipy==1.14.0
 
+# ------------------------------------------------------------------
+# MACHINE LEARNING — TRANSFORMER / ONNX INFERENCE
+# onnxruntime      — CPU-optimized ONNX model inference engine
+# transformers     — HuggingFace tokenizer & model loading
+# tokenizers       — Rust-based fast tokenizer (HuggingFace)
+# torch            — PyTorch runtime (CPU only for prod servers)
+# sentencepiece    — Tokenizer backend for DeBERTa models
+# ------------------------------------------------------------------
+onnxruntime==1.19.2
+transformers==4.44.2
+tokenizers==0.19.1
+torch==2.4.1
+sentencepiece==0.2.0
+
+# ------------------------------------------------------------------
+# NLP — TEXT PREPROCESSING & SENTIMENT
+# nltk         — Tokenization, stopwords, stemming
+# textblob     — Polarity / subjectivity sentiment analysis
+# vaderSentiment — Rule-based sentiment for short social media texts
+# ------------------------------------------------------------------
 nltk==3.9.1
 textblob==0.18.0.post0
 vaderSentiment==3.3.2
 
+# ------------------------------------------------------------------
+# LLM INTEGRATION (OpenRouter / OpenAI-compatible API)
+# openai       — OpenAI SDK (used as OpenRouter client)
+# httpx        — Async HTTP client (used by openai + direct calls)
+# ------------------------------------------------------------------
 openai==1.51.0
-python-dotenv==1.0.1
-
-sqlalchemy==2.0.32
-passlib[bcrypt]==1.7.4
-bcrypt==4.0.1
-python-jose[cryptography]==3.3.0
 httpx==0.27.2
 
+# ------------------------------------------------------------------
+# ENVIRONMENT & CONFIGURATION
+# python-dotenv — Loads .env files into os.environ
+# pydantic-settings — Typed environment variable loading
+# ------------------------------------------------------------------
+python-dotenv==1.0.1
+pydantic-settings==2.4.0
 
-psycopg2-binary
+# ------------------------------------------------------------------
+# DATA PROCESSING
+# pandas  — CSV export, analytics, and dataset manipulation
+# ------------------------------------------------------------------
+pandas==2.2.2
 
+# ------------------------------------------------------------------
+# ASYNC & CONCURRENCY
+# anyio     — Async compatibility layer (used by FastAPI/httpx)
+# aiofiles  — Async file I/O for streaming responses
+# ------------------------------------------------------------------
+anyio==4.4.0
+aiofiles==24.1.0
 
+# ------------------------------------------------------------------
+# PRODUCTION UTILITIES
+# gunicorn       — WSGI process manager (for Docker / Render)
+# python-multipart — Multipart form data parsing (file uploads)
+# email-validator  — Pydantic email field validation
+# ------------------------------------------------------------------
+gunicorn==23.0.0
+python-multipart==0.0.12
+email-validator==2.2.0
 
+# ------------------------------------------------------------------
+# LOGGING & MONITORING
+# loguru    — Structured, colorized logging
+# ------------------------------------------------------------------
+loguru==0.7.2
 
-
-
-
-
-
-
-
-# fastapi
-# uvicorn
-# scikit-learn
-# joblib
-# nltk
-# textblob
-# openai
-# python-dotenv
-# vaderSentiment
+# ------------------------------------------------------------------
+# TESTING
+# pytest    — Test runner
+# ------------------------------------------------------------------
+pytest==8.3.2

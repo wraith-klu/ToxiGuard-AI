@@ -1,0 +1,12 @@
+{$DOMAIN_NAME:localhost} {
+    # Reverse proxy backend API requests
+    handle /api/* {
+        uri strip_prefix /api
+        reverse_proxy backend:8000
+    }
+
+    # Reverse proxy all other requests to static frontend
+    handle {
+        reverse_proxy frontend:80
+    }
+}

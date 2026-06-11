@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToxiGuard AI — SaaS Analytics Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #030712;
+      --surf: rgba(255, 255, 255, 0.03);
+      --surf-hover: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.06);
+      --border-focus: rgba(108, 99, 255, 0.4);
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-sec: #d1d5db;
+      --accent: #6c63ff;
+      --accent-gradient: linear-gradient(135deg, #6c63ff, #3b82f6);
+      --accent-shadow: rgba(108, 99, 255, 0.3);
+      --red: #ef4444;
+      --orange: #f97316;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --glass: rgba(17, 24, 39, 0.7);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(108, 99, 255, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Layout */
+    .dashboard-container {
+      display: flex;
+      flex: 1;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+      gap: 24px;
+    }
+
+    /* Sidebar */
+    aside {
+      width: 280px;
+      background: var(--glass);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      height: calc(100vh - 48px);
+      position: sticky;
+      top: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      font-size: 28px;
+      filter: drop-shadow(0 0 10px var(--accent-shadow));
+    }
+
+    .brand-name {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #fff, #a5b4fc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-tag {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .menu-item:hover {
+      background: var(--surf);
+      color: var(--text);
+    }
+
+    .menu-item.active {
+      background: linear-gradient(135deg, rgba(108, 99, 255, 0.15), rgba(59, 130, 246, 0.05));
+      color: #fff;
+      border: 1px solid rgba(108, 99, 255, 0.25);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .user-info {
+      overflow: hidden;
+    }
+
+    .user-email {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-plan {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Main Content */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      min-width: 0; /* Prevents flex children from stretching */
+    }
+
+    header {
+      background: var(--glass);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .page-title h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .page-title p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      border: 1px solid var(--border);
+      background: var(--surf);
+      color: var(--text-sec);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background: var(--surf-hover);
+      color: #fff;
+    }
+
+    .btn-primary {
+      background: var(--accent-gradient);
+      border: none;
+      color: #fff;
+      box-shadow: 0 4px 14px var(--accent-shadow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px var(--accent-shadow);
+    }
+
+    /* Cards & Grids */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--glass);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Stat Cards */
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .stat-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    .stat-icon {
+      font-size: 18px;
+      padding: 8px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+    .stat-trend {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    .trend-up { color: var(--green); }
+    .trend-down { color: var(--red); }
+
+    /* Custom Chart Section */
+    .chart-container {
+      height: 280px;
+      position: relative;
+      margin-top: 16px;
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      padding-top: 20px;
+    }
+
+    .chart-y-axis {
+      position: absolute;
+      left: 0;
+      top: 20px;
+      bottom: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-muted);
+      width: 30px;
+    }
+
+    .chart-bars-wrap {
+      flex: 1;
+      height: 100%;
+      margin-left: 30px;
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-end;
+      position: relative;
+    }
+
+    .chart-bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      flex: 1;
+      max-width: 60px;
+      position: relative;
+    }
+
+    .chart-bar {
+      width: 100%;
+      background: linear-gradient(180deg, var(--accent), rgba(108, 99, 255, 0.2));
+      border-radius: 8px 8px 0 0;
+      transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      min-height: 4px;
+    }
+
+    .chart-bar:hover {
+      filter: brightness(1.2);
+    }
+
+    .chart-bar-tooltip {
+      position: absolute;
+      top: -35px;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .chart-bar-col:hover .chart-bar-tooltip {
+      opacity: 1;
+    }
+
+    .chart-x-label {
+      position: absolute;
+      bottom: -25px;
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* Table Section */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    td {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      font-size: 13px;
+      color: var(--text-sec);
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.01);
+      color: #fff;
+    }
+
+    .badge-sev {
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+
+    .sev-high { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+    .sev-medium { background: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.2); }
+    .sev-low { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
+
+    /* Settings section */
+    .settings-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .form-input-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .form-input-row input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .form-input-row input:focus {
+      border-color: var(--border-focus);
+    }
+
+    /* Subscription Upgrade Design (SaaS UI) */
+    .pricing-wrap {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-top: 16px;
+    }
+
+    .pricing-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      position: relative;
+    }
+
+    .pricing-card.premium {
+      background: linear-gradient(135deg, rgba(108, 99, 255, 0.08) 0%, rgba(59, 130, 246, 0.04) 100%);
+      border-color: rgba(108, 99, 255, 0.35);
+      box-shadow: 0 10px 30px rgba(108, 99, 255, 0.1);
+    }
+
+    .premium-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: var(--accent-gradient);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 20px;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+
+    .plan-name {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .plan-price {
+      font-size: 40px;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+    }
+
+    .plan-price span {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0px;
+    }
+
+    .plan-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-sec);
+    }
+
+    .plan-features li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .plan-features li::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: bold;
+    }
+
+    /* Custom toggle switch styling */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 26px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.08);
+      transition: .4s;
+      border-radius: 34px;
+      border: 1px solid var(--border);
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background: var(--accent-gradient);
+      border-color: transparent;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    /* Tab Management */
+    .tab-content {
+      display: none;
+    }
+    .tab-content.default-active {
+      display: block;
+    }
+
+    /* Helper & Utility Classes */
+    .mb-24 {
+      margin-bottom: 24px;
+    }
+    .mb-20 {
+      margin-bottom: 20px;
+    }
+    .mt-8 {
+      margin-top: 8px;
+    }
+    .m-0 {
+      margin: 0;
+    }
+    .w-10 {
+      width: 10%;
+    }
+    .w-15 {
+      width: 15%;
+    }
+    .w-50 {
+      width: 50%;
+    }
+    .flex-1 {
+      flex: 1;
+    }
+
+    /* Sub-text descriptions */
+    .desc-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .desc-text-mb24 {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      margin-bottom: 24px;
+    }
+    .desc-text-mb16 {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      margin-bottom: 16px;
+    }
+    .info-text-sm {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    /* Flex Containers */
+    .flex-col-gap-20 {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .flex-between-center {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .flex-between-center-mt8 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .flex-between-center-mb20 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .flex-gap-10 {
+      display: flex;
+      gap: 10px;
+    }
+    .flex-gap10-mt8 {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    /* Specific components */
+    .fs-13 {
+      font-size: 13px;
+    }
+    .text-accent {
+      color: var(--accent);
+    }
+    .btn-sm {
+      padding: 6px 12px;
+    }
+    .form-group-border {
+      margin: 0;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+    .search-input {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 16px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+    .code-block {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      color: #34d399;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      overflow-x: auto;
+    }
+    .btn-full-p12 {
+      width: 100%;
+      justify-content: center;
+      padding: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside>
+      <div class="brand">
+        <span class="brand-logo">🛡️</span>
+        <div>
+          <div class="brand-name">ToxiGuard AI</div>
+          <div class="brand-tag">Enterprise SaaS</div>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li><a class="menu-item active" data-tab="analytics">📊 Analytics Dashboard</a></li>
+        <li><a class="menu-item" data-tab="history">🗂️ Blocking History</a></li>
+        <li><a class="menu-item" data-tab="api-keys">🔑 Developer Keys</a></li>
+        <li><a class="menu-item" data-tab="billing">💳 Plans & Billing</a></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="user-avatar" id="sideUserAvatar">U</div>
+          <div class="user-info">
+            <div class="user-email" id="sideUserEmail">loading...</div>
+            <div class="user-plan" id="sideUserPlan">Free Account</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+      
+      <!-- Top header bar -->
+      <header>
+        <div class="page-title">
+          <h1 id="pageMainHeader">Analytics & Logs</h1>
+          <p id="pageMainSub">Monitor real-time toxicity detection and system usage.</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn" id="refreshBtn">🔄 Refresh Data</button>
+          <button class="btn btn-primary" id="dashboardSettingsBtn">⚙️ Chrome Settings</button>
+        </div>
+      </header>
+
+      <!-- TAB 1: ANALYTICS -->
+      <section id="tab-analytics" class="tab-content default-active">
+        <div class="grid-3 mb-24">
+          <!-- Card 1 -->
+          <div class="card">
+            <div class="stat-header">
+              <span class="stat-title">Total Processed</span>
+              <span class="stat-icon">🌐</span>
+            </div>
+            <div class="stat-value" id="statProcessed">0</div>
+            <div class="stat-trend trend-up">
+              <span>↑ Active scanning enabled</span>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="card">
+            <div class="stat-header">
+              <span class="stat-title">Toxic Comments Flagged</span>
+              <span class="stat-icon">🚨</span>
+            </div>
+            <div class="stat-value" id="statToxic">0</div>
+            <div class="stat-trend trend-up">
+              <span id="statToxicityRatio">0% toxicity rate detected</span>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="card">
+            <div class="stat-header">
+              <span class="stat-title">API Monthly Quota</span>
+              <span class="stat-icon">⚡</span>
+            </div>
+            <div class="stat-value" id="statUsage">0%</div>
+            <div class="stat-trend">
+              <span id="statUsageDesc">0 / 1,000 monthly analyses</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Chart Card -->
+          <div class="card">
+            <h2>Toxicity by Platform</h2>
+            <p class="desc-text">Distribution of toxic content flagged on active networks.</p>
+            
+            <div class="chart-container">
+              <div class="chart-y-axis">
+                <span>Max</span>
+                <span>50%</span>
+                <span>0</span>
+              </div>
+              <div class="chart-bars-wrap" id="platformChart">
+                <!-- Dynamic Bars Injected by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Config Card -->
+          <div class="card flex-col-gap-20">
+            <h2>SaaS Configuration</h2>
+            <p class="desc-text">Fast controls synced to your local extensions.</p>
+
+            <div class="form-group m-0">
+              <label>Backend API Server</label>
+              <div class="form-input-row mt-8">
+                <input type="text" id="optionsBackendUrl" placeholder="http://127.0.0.1:8000" aria-label="Backend API Server URL" title="Backend API Server URL">
+                <button class="btn btn-primary" id="saveBackendUrlBtn">Save URL</button>
+              </div>
+            </div>
+
+            <div class="form-group m-0">
+              <label>Frontend Web Portal</label>
+              <div class="form-input-row mt-8">
+                <input type="text" id="optionsFrontendUrl" placeholder="http://localhost:5173" aria-label="Frontend Web Portal URL" title="Frontend Web Portal URL">
+                <button class="btn btn-primary" id="saveFrontendUrlBtn">Save URL</button>
+              </div>
+            </div>
+
+            <div class="form-group m-0">
+              <label>Global Moderation</label>
+              <div class="flex-between-center-mt8">
+                <span class="fs-13">Enable filtering extension-wide</span>
+                <label class="switch">
+                  <input type="checkbox" id="optionsGlobalSw" checked aria-label="Enable Global Moderation" title="Enable Global Moderation">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group m-0">
+              <label>Detection Threshold</label>
+              <div class="flex-between-center-mt8">
+                <span class="fs-13">Current Level: <strong id="optionsSensLabel" class="text-accent">Medium</strong></span>
+                <button class="btn btn-sm" id="optionsSensToggleBtn">Change</button>
+              </div>
+            </div>
+            
+            <div class="form-group form-group-border">
+              <label>Backup Options</label>
+              <div class="flex-gap10-mt8">
+                <button class="btn flex-1" id="exportStatsBtn">📤 Export CSV</button>
+                <button class="btn flex-1" id="resetStatsBtn">🗑️ Reset Logs</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: HISTORY -->
+      <section id="tab-history" class="tab-content">
+        <div class="card">
+          <div class="flex-between-center-mb20">
+            <div>
+              <h2>Audit Log</h2>
+              <p class="desc-text">Recent comments flagged for toxic content.</p>
+            </div>
+            <div class="flex-gap-10">
+              <input type="text" id="historySearchInput" placeholder="Search comments..." class="search-input">
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th class="w-15">Platform</th>
+                  <th class="w-50">Comment Snippet</th>
+                  <th class="w-15">Severity</th>
+                  <th class="w-10">Confidence</th>
+                  <th class="w-10">Time</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: DEV KEYS -->
+      <section id="tab-api-keys" class="tab-content">
+        <div class="card mb-24">
+          <h2>Developer Integrations</h2>
+          <p class="desc-text-mb24">Access the raw ToxiGuard AI endpoint directly in your apps, backends, or scripts.</p>
+
+          <div class="form-group">
+            <label>Your Live API Key</label>
+            <div class="form-input-row mt-8">
+              <input type="text" id="devApiKeyField" readonly value="loading..." aria-label="Your Live API Key" title="Your Live API Key">
+              <button class="btn btn-primary" id="copyDevKeyBtn">Copy Key</button>
+            </div>
+            <p class="info-text-sm">Keep this key secret. Sharing it may exhaust your monthly API quota.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Quick Integration Example</h2>
+          <p class="desc-text-mb16">Make a POST request to analyze text in Node.js, Python, or curl.</p>
+          
+          <pre class="code-block">
+curl -X POST https://toxiguard-ai-agent-1.onrender.com/predict/ml \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: &lt;YOUR_API_KEY&gt;" \
+  -d '{"text": "Is this a friendly message?"}'</pre>
+        </div>
+      </section>
+
+      <!-- TAB 4: BILLING -->
+      <section id="tab-billing" class="tab-content">
+        <div class="card mb-24">
+          <h2>Subscription Plans</h2>
+          <p class="desc-text">Choose the capacity you need for professional moderation.</p>
+
+          <div class="pricing-wrap">
+            <!-- Free Plan -->
+            <div class="pricing-card" id="pricingFreeCard">
+              <div class="plan-name">Developer Free</div>
+              <div class="plan-price">$0 <span>/ month</span></div>
+              <ul class="plan-features">
+                <li>1,000 monthly scanning credits</li>
+                <li>Fast ML-only comment scanning</li>
+                <li>Instagram, Twitter & YouTube support</li>
+                <li>Standard community support</li>
+              </ul>
+              <button class="btn btn-full-p12" id="billingDowngradeBtn" disabled>Active Plan</button>
+            </div>
+
+            <!-- Pro Plan -->
+            <div class="pricing-card premium" id="pricingProCard">
+              <span class="premium-badge">RECOMMENDED</span>
+              <div class="plan-name">Premium SaaS Pro</div>
+              <div class="plan-price">$29 <span>/ month</span></div>
+              <ul class="plan-features">
+                <li>50,000 monthly scanning credits</li>
+                <li>Higher ML scanning quota</li>
+                <li>All supported networks + LinkedIn</li>
+                <li>Dedicated cloud dashboards</li>
+                <li>24/7 Priority API support</li>
+              </ul>
+              <button class="btn btn-primary btn-full-p12" id="billingUpgradeBtn">Upgrade to Pro</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

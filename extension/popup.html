@@ -1,58 +1,265 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>ToxiGuard AI</title>
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="popup.css">
 </head>
-
 <body>
 
-  <h2>ToxiGuard AI</h2>
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--               AUTH SCREEN                       -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="auth-screen" class="screen">
+    <div class="auth-bg">
+      <div class="orb orb1"></div>
+      <div class="orb orb2"></div>
+      <div class="orb orb3"></div>
+    </div>
 
-  <!-- ================= LOGIN ================= -->
+    <div class="auth-logo">
+      <div class="auth-shield">🛡️</div>
+      <div class="auth-brand">ToxiGuard <span>AI</span></div>
+      <div class="auth-tagline">Enterprise Content Moderation</div>
+    </div>
 
-  <div id="login-section">
+    <div class="auth-connect-container">
+      <p class="auth-connect-desc">Connect the extension to your ToxiGuard Web Portal account to enable real-time safety shields.</p>
+      
+      <button class="btn-primary" id="connectWebBtn">
+        <span class="btn-label">Sign In / Sign Up via Web Portal</span>
+      </button>
 
-    <input
-      id="email"
-      type="email"
-      placeholder="Email"
-      autocomplete="username"
-    >
-
-    <input
-      id="password"
-      type="password"
-      placeholder="Password"
-      autocomplete="current-password"
-    >
-
-    <button id="loginBtn">Login</button>
-
-    <p id="status" class="status"></p>
-
+      <p class="auth-note">Your extension will instantly sync when you sign in or register on the web portal.</p>
+    </div>
   </div>
 
-  <!-- ================= CONTROL PANEL ================= -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--             DASHBOARD SCREEN                    -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="dash-screen" class="screen hidden">
 
-  <div id="control-section" style="display:none">
+    <!-- Header -->
+    <div class="hdr">
+      <div class="hdr-brand">
+        <span class="hdr-logo">🛡️</span>
+        <div>
+          <div class="hdr-name">ToxiGuard AI</div>
+          <div class="hdr-email" id="hdrEmail">—</div>
+        </div>
+      </div>
+      <div class="hdr-right">
+        <span class="plan-pill" id="planPill">FREE</span>
+        <label class="sw" id="masterSwLabel" title="Toggle moderation" for="masterSw">
+          <span class="sr-only">Toggle moderation</span>
+          <input type="checkbox" id="masterSw" title="Toggle moderation" aria-label="Toggle Moderation">
+          <span class="sw-track"></span>
+        </label>
+        <button class="hdr-logout-btn" id="hdrLogoutBtn" title="Sign Out" aria-label="Sign Out">⏻</button>
+      </div>
+    </div>
 
-    <p class="success">✅ Logged in</p>
+    <!-- Nav -->
+    <div class="nav">
+      <button class="ntab active" id="ntab-dash"     onclick="showPanel('dash')">📊 Dashboard</button>
+      <button class="ntab"        id="ntab-settings" onclick="showPanel('settings')">⚙️ Settings</button>
+    </div>
 
-    <label class="toggle-label">
-      <input type="checkbox" id="toggle">
-      Enable Moderation
-    </label>
+    <!-- ─── Dashboard Panel ─── -->
+    <div id="panel-dash" class="panel">
 
-    <button id="logoutBtn" class="logout">Logout</button>
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card c-red">
+          <div class="stat-num" id="sToxToday">0</div>
+          <div class="stat-lbl">Blocked Today</div>
+        </div>
+        <div class="stat-card c-blue">
+          <div class="stat-num" id="sScnToday">0</div>
+          <div class="stat-lbl">Scanned Today</div>
+        </div>
+        <div class="stat-card c-green">
+          <div class="stat-num" id="sToxAll">0</div>
+          <div class="stat-lbl">All-Time Blocked</div>
+        </div>
+      </div>
 
-  </div>
+      <!-- Active Platform -->
+      <div class="card">
+        <div class="card-label">Active Platform</div>
+        <div class="pf-row">
+          <span id="pfIcon">🌐</span>
+          <span id="pfName" class="pf-name">Detecting...</span>
+          <span id="pfStatus" class="pf-status off">—</span>
+        </div>
+      </div>
+
+      <!-- Activity Feed -->
+      <div class="card">
+        <div class="card-label">Recent Detections</div>
+        <div class="feed" id="feed">
+          <div class="feed-empty">No toxic content blocked yet 🌟</div>
+        </div>
+      </div>
+
+      <!-- Usage -->
+      <div class="card">
+        <div class="usage-hdr">
+          <div class="card-label no-margin">API Usage</div>
+          <span class="usage-count" id="usageTxt">— / —</span>
+        </div>
+        <div class="ubar-bg"><div class="ubar-fill" id="ubarFill" ></div></div>
+        <div class="usage-sub" id="usageSub">Free Plan · 1,000 analyses / month</div>
+        <a class="upgrade-link" id="upgradeLink" href="#" onclick="openOptions(); return false;">
+          ⚡ Upgrade to Pro — 50,000 analyses/month →
+        </a>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-row">
+        <button class="qbtn" id="rescanBtn" onclick="doRescan()">🔄 Rescan Page</button>
+        <button class="qbtn" onclick="openOptions()">📊 Analytics</button>
+      </div>
+
+    </div><!-- /panel-dash -->
+
+    <!-- ─── Settings Panel ─── -->
+    <div id="panel-settings" class="panel hidden">
+
+      <!-- Platforms -->
+      <div class="card">
+        <div class="card-label">Platforms</div>
+        <div class="pf-list">
+          <label class="pf-item">
+            <div class="pf-info"><span>🟣</span> Instagram</div>
+            <div class="sw sm">
+              <input type="checkbox" id="pf-instagram" data-pf="instagram" class="pf-sw" checked title="Toggle Instagram" aria-label="Toggle Instagram">
+              <span class="sw-track"></span>
+            </div>
+          </label>
+          <label class="pf-item">
+            <div class="pf-info"><span>🐦</span> Twitter / X</div>
+            <div class="sw sm">
+              <input type="checkbox" id="pf-twitter" data-pf="twitter" class="pf-sw" checked title="Toggle Twitter / X" aria-label="Toggle Twitter or X">
+              <span class="sw-track"></span>
+            </div>
+          </label>
+          <label class="pf-item">
+            <div class="pf-info"><span>🔴</span> YouTube</div>
+            <div class="sw sm">
+              <input type="checkbox" id="pf-youtube" data-pf="youtube" class="pf-sw" checked title="Toggle YouTube" aria-label="Toggle YouTube">
+              <span class="sw-track"></span>
+            </div>
+          </label>
+          <label class="pf-item">
+            <div class="pf-info"><span>🟠</span> Reddit</div>
+            <div class="sw sm">
+              <input type="checkbox" id="pf-reddit" data-pf="reddit" class="pf-sw" checked title="Toggle Reddit" aria-label="Toggle Reddit">
+              <span class="sw-track"></span>
+            </div>
+          </label>
+          <label class="pf-item">
+            <div class="pf-info"><span>💼</span> LinkedIn</div>
+            <div class="sw sm">
+              <input type="checkbox" id="pf-linkedin" data-pf="linkedin" class="pf-sw" title="Toggle LinkedIn" aria-label="Toggle LinkedIn">
+              <span class="sw-track"></span>
+            </div>
+          </label>
+          <label class="pf-item">
+            <div class="pf-info"><span>📘</span> Facebook</div>
+            <div class="sw sm">
+              <input type="checkbox" id="pf-facebook" data-pf="facebook" class="pf-sw" checked title="Toggle Facebook" aria-label="Toggle Facebook">
+              <span class="sw-track"></span>
+            </div>
+          </label>
+          <label class="pf-item">
+            <div class="pf-info"><span>🎵</span> TikTok</div>
+            <div class="sw sm">
+              <input type="checkbox" id="pf-tiktok" data-pf="tiktok" class="pf-sw" checked title="Toggle TikTok" aria-label="Toggle TikTok">
+              <span class="sw-track"></span>
+            </div>
+          </label>
+          <label class="pf-item">
+            <div class="pf-info"><span>🧵</span> Threads</div>
+            <div class="sw sm">
+              <input type="checkbox" id="pf-threads" data-pf="threads" class="pf-sw" checked title="Toggle Threads" aria-label="Toggle Threads">
+              <span class="sw-track"></span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Detection Mode -->
+      <div class="card">
+        <div class="card-label">Detection Mode</div>
+        <div class="mode-grid">
+          <label class="mode-opt">
+            <input type="radio" name="mode" value="highlight" id="mHighlight" title="Select Option" aria-label="Input field">
+            <div class="mode-card">
+              <span class="mode-ico">🎨</span>
+              <span class="mode-name">Highlight</span>
+              <span class="mode-sub">Color-code toxic</span>
+            </div>
+          </label>
+          <label class="mode-opt">
+            <input type="radio" name="mode" value="blur" id="mBlur" title="Select Option" aria-label="Input field">
+            <div class="mode-card">
+              <span class="mode-ico">🌫️</span>
+              <span class="mode-name">Blur</span>
+              <span class="mode-sub">Hidden until revealed</span>
+            </div>
+          </label>
+          <label class="mode-opt">
+            <input type="radio" name="mode" value="hide" id="mHide" title="Select Option" aria-label="Input field">
+            <div class="mode-card">
+              <span class="mode-ico">🚫</span>
+              <span class="mode-name">Remove</span>
+              <span class="mode-sub">Delete from page</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Sensitivity -->
+      <div class="card">
+        <div class="sens-hdr">
+          <label for="sensRange" class="card-label no-margin">Sensitivity</label>
+          <span class="sens-val" id="sensVal">Medium</span>
+        </div>
+        <input type="range" min="0" max="2" value="1" class="sens-range" id="sensRange" title="Adjust Range" aria-label="Adjust Sensitivity">
+        <div class="sens-scale"><span>Low</span><span>Medium</span><span>High</span></div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="card">
+        <label class="row-between" for="notifSw">
+          <div>
+            <div class="card-label mb-2">Notifications</div>
+            <div class="sub-text">Desktop alerts for toxic content</div>
+          </div>
+          <div class="sw sm"><input type="checkbox" id="notifSw" checked title="Toggle Notifications" aria-label="Toggle Notifications"><span class="sw-track"></span></div>
+        </label>
+      </div>
+
+      <!-- API Key -->
+      <div class="card">
+        <div class="card-label">API Key</div>
+        <div class="apikey-row">
+          <div class="apikey-val" id="apikeyVal">••••••••••••••••</div>
+          <button class="apikey-copy" id="apikeyCopyBtn" title="Copy API Key">📋</button>
+        </div>
+      </div>
+
+      <!-- Logout -->
+      <button class="btn-danger" id="logoutBtn">🚪 Sign Out</button>
+
+    </div><!-- /panel-settings -->
+
+  </div><!-- /dash-screen -->
 
   <script src="popup.js"></script>
-
 </body>
 </html>

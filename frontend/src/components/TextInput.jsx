@@ -1,24 +1,23 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 
 export default function TextInput({ value, onChange }) {
-  const inputRef = useRef(null);
-
-  // Auto focus on load
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
   return (
-    <div className="glass">
-      <h4 style={{ color: "#38bdf8", marginBottom: 12 }}>
-        ✍️ Enter Text
+    <div className="glass animate-fade-in delay-2">
+      <h4 style={{
+        color: "var(--accent-blue)",
+        marginBottom: 12,
+        fontFamily: "var(--font-heading)",
+        fontSize: "0.9rem",
+        fontWeight: 700,
+      }}>
+        Enter Text to Analyze
       </h4>
 
       <textarea
-        ref={inputRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Type your message here..."
+        placeholder="Type or paste any text here to analyze for toxicity..."
+        autoFocus
       />
     </div>
   );

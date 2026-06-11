@@ -1,0 +1,175 @@
+/* ===============================
+   Container
+================================= */
+.file-upload-container {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 16px;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+/* ===============================
+   Title
+================================= */
+.file-upload-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #e6f1ff;
+}
+
+/* ===============================
+   Input + Button Row
+================================= */
+.file-upload-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* File input */
+.file-input {
+    color: #e6f1ff;
+    font-size: 14px;
+}
+
+/* ===============================
+   Upload Button
+================================= */
+.upload-btn {
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: #000;
+    transition: all 0.25s ease;
+}
+
+.upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+}
+
+.upload-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ===============================
+   KPI Section
+================================= */
+.file-kpi-row {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.file-kpi-card {
+    flex: 1;
+    min-width: 120px;
+    padding: 15px;
+    border-radius: 14px;
+    text-align: center;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.file-kpi-card h4 {
+    font-size: 14px;
+    color: #9db4d0;
+    margin-bottom: 6px;
+}
+
+.file-kpi-card p {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* ===============================
+   Results Section
+================================= */
+.file-results {
+    margin-top: 20px;
+    /* max-height: 400px;
+    overflow-y: auto; */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 5px;
+}
+
+/* Scrollbar */
+.file-results::-webkit-scrollbar {
+    width: 6px;
+}
+
+.file-results::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+/* ===============================
+   Result Card
+================================= */
+.file-result-card {
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+}
+
+.file-result-card:hover {
+    transform: scale(1.01);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Toxic / Clean border */
+.file-result-toxic {
+    border-left: 4px solid #ff4d4f;
+}
+
+.file-result-clean {
+    border-left: 4px solid #4caf50;
+}
+
+/* ===============================
+   Text Styling
+================================= */
+.file-result-text {
+    margin-bottom: 6px;
+    color: #e6f1ff;
+    font-size: 14px;
+}
+
+.file-result-meta {
+    font-size: 12px;
+    color: #9db4d0;
+}
+
+/* ===============================
+   Responsive
+================================= */
+@media (max-width: 600px) {
+    .file-upload-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .upload-btn {
+        width: 100%;
+    }
+
+    .file-kpi-row {
+        flex-direction: column;
+    }
+}

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "./Login.css"; // ✅ reuse same CSS as login
+import { useToast } from "../components/Toast";
+import "./Login.css";
 
-const API =
-  import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8090";
+const API = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8000";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -11,12 +11,18 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const toast = useToast();
 
   const handleSignup = async (e) => {
     e.preventDefault();
 
     if (!email || !password) {
-      alert("Enter email and password");
+      toast.error("Please enter email and password");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
       return;
     }
 
@@ -25,26 +31,21 @@ export default function Signup() {
 
       const res = await fetch(`${API}/auth/signup`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, password })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
-      let data = {};
-      try {
-        data = await res.json();
-      } catch { }
+      const data = await res.json();
 
-      if (res.ok) {
-        alert("Account created successfully");
-        navigate("/login");
+      if (res.ok && data.api_key) {
+        localStorage.setItem("api_key", data.api_key);
+        toast.success("Account created! Welcome to ToxiGuard.");
+        navigate("/dashboard");
       } else {
-        alert(data.detail || "Signup failed");
+        toast.error(data.detail || "Signup failed");
       }
-
     } catch (err) {
-      alert("Backend not reachable");
+      toast.error("Cannot connect to server");
       console.error(err);
     } finally {
       setLoading(false);
@@ -54,36 +55,42 @@ export default function Signup() {
   return (
     <div className="auth-page">
       <div className="auth-container">
-
-        {/* LEFT SIDE */}
+        {/* Left Form */}
         <div className="auth-card">
-          <div className="auth-brand">ToxiGuard.AI</div>
-          <h2>Create Account</h2>
+          <div className="auth-brand">
+            <span className="auth-brand-icon">◆</span>
+            <span className="auth-brand-text">ToxiGuard AI</span>
+          </div>
+
+          <h2>Create account</h2>
 
           <form onSubmit={handleSignup} className="auth-form">
+        
             <input
               type="email"
-              placeholder="Email"
+              placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
             />
 
             <input
               type="password"
-              placeholder="Password"
+              placeholder="Password (min 6 characters)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
             />
 
             <button type="submit" disabled={loading}>
-              {loading ? "Creating..." : "Sign Up"}
+              {loading ? "Creating..." : "Create Account"}
             </button>
           </form>
 
           <p className="auth-alt">
             Already have an account?{" "}
             <Link to="/login" className="auth-link">
-              Login
+              Sign in
             </Link>
           </p>
 
@@ -95,11 +102,10 @@ export default function Signup() {
           </button>
         </div>
 
-        {/* RIGHT SIDE */}
+        {/* Right Image */}
         <div className="auth-right">
-          <img src="/toxi2.jpg" alt="AI" />
+          <img src="/toxi2.jpg" alt="ToxiGuard AI" />
         </div>
-
       </div>
     </div>
   );

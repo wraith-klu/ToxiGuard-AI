@@ -1,24 +1,54 @@
+"""
+ToxiGuard AI — Sentiment Analysis
+===================================
+Lightweight sentiment scoring using VADER (Valence Aware Dictionary
+and sEntiment Reasoner) — optimised for social-media and short texts.
+
+Returns polarity, subjectivity (derived, not hardcoded), label and
+all four raw VADER scores for downstream use.
+"""
+
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-analyzer = SentimentIntensityAnalyzer()
+_analyzer = SentimentIntensityAnalyzer()
 
 
 def analyze_sentiment(text: str) -> dict:
     """
-    Lightweight sentiment analysis (fast, no downloads)
-    """
+    Analyse sentiment of text using VADER.
 
+    Args:
+        text: Input string (preferably rule-cleaned, but raw text works too).
+
+    Returns:
+        {
+            "label":       "positive" | "negative" | "neutral",
+            "polarity":    float  — VADER compound score [-1, 1]
+            "subjectivity": float — derived from pos+neg proportion [0, 1]
+            "confidence":  float  — |compound| score [0, 1]
+            "positive":    float  — raw VADER positive score
+            "negative":    float  — raw VADER negative score
+            "neutral":     float  — raw VADER neutral score
+        }
+    """
     if not text or not text.strip():
         return {
+            "label": "neutral",
             "polarity": 0.0,
             "subjectivity": 0.0,
-            "label": "neutral",
-            "confidence": 0.0
+            "confidence": 0.0,
+            "positive": 0.0,
+            "negative": 0.0,
+            "neutral": 1.0,
         }
 
-    scores = analyzer.polarity_scores(text)
+    scores = _analyzer.polarity_scores(text)
     compound = scores["compound"]
+    pos = scores["pos"]
+    neg = scores["neg"]
+    neu = scores["neu"]
 
+    # Classify label from compound threshold (VADER's recommended values)
     if compound >= 0.05:
         label = "positive"
     elif compound <= -0.05:
@@ -26,84 +56,19 @@ def analyze_sentiment(text: str) -> dict:
     else:
         label = "neutral"
 
+    # Subjectivity: proportion of text that is NOT neutral
+    # (pos + neg) out of total rated content; derived from VADER scores
+    subjectivity = round(min(pos + neg, 1.0), 3)
+
     return {
-        "polarity": round(compound, 3),
-        "subjectivity": 1.0,
         "label": label,
-        "confidence": round(abs(compound), 3)
+        "polarity": round(compound, 3),
+        "subjectivity": subjectivity,
+        "confidence": round(abs(compound), 3),
+        "positive": round(pos, 3),
+        "negative": round(neg, 3),
+        "neutral": round(neu, 3),
     }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-# from textblob import TextBlob
 
 
-# # =====================================================
-# # SENTIMENT ANALYSIS
-# # =====================================================
-
-# def analyze_sentiment(text: str) -> dict:
-#     """
-#     Analyze sentiment polarity and subjectivity.
-
-#     Returns:
-#         {
-#             "polarity": float (-1.0 → 1.0),
-#             "subjectivity": float (0.0 → 1.0),
-#             "label": "positive" | "neutral" | "negative",
-#             "confidence": float (0.0 → 1.0)
-#         }
-#     """
-
-#     if not text or not text.strip():
-#         return {
-#             "polarity": 0.0,
-#             "subjectivity": 0.0,
-#             "label": "neutral",
-#             "confidence": 0.0
-#         }
-
-#     try:
-#         blob = TextBlob(text)
-#         polarity = float(blob.sentiment.polarity)
-#         subjectivity = float(blob.sentiment.subjectivity)
-
-#         # Label classification
-#         if polarity > 0.15:
-#             label = "positive"
-#         elif polarity < -0.15:
-#             label = "negative"
-#         else:
-#             label = "neutral"
-
-#         # Confidence mapping
-#         confidence = min(abs(polarity), 1.0)
-
-#         return {
-#             "polarity": round(polarity, 3),
-#             "subjectivity": round(subjectivity, 3),
-#             "label": label,
-#             "confidence": round(confidence, 3)
-#         }
-
-#     except Exception as e:
-#         print("⚠️ Sentiment error:", e)
-
-#         return {
-#             "polarity": 0.0,
-#             "subjectivity": 0.0,
-#             "label": "neutral",
-#             "confidence": 0.0
-#         }
+__all__ = ["analyze_sentiment"]

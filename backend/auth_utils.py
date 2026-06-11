@@ -1,10 +1,15 @@
+import os
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from fastapi import HTTPException, status
+import secrets
+from dotenv import load_dotenv
 
-SECRET_KEY = "super-secret-key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
+load_dotenv()
+
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", secrets.token_hex(32))
+ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
 
 
 def create_access_token(data: dict):
@@ -26,3 +31,9 @@ def verify_token(token: str):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token"
         )
+
+
+# ✅ API KEY GENERATOR
+
+def generate_api_key():
+    return secrets.token_hex(32)

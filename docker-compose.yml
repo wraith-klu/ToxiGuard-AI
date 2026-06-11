@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # 1. Reverse Proxy & Automated SSL (Caddy)
+  caddy:
+    image: caddy:2-alpine
+    container_name: toxiguard-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+    restart: always
+
+  # 2. React Static Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_BACKEND_URL=${VITE_BACKEND_URL:-http://localhost/api}
+    container_name: toxiguard-frontend
+    depends_on:
+      - backend
+    restart: always
+
+  # 3. FastAPI Python Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: toxiguard-backend
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres-db:5432/${DB_NAME}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - ALLOWED_ORIGINS=*
+    depends_on:
+      - postgres-db
+    restart: always
+
+  # 4. PostgreSQL Relational Database (Production Grade)
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: toxiguard-postgres
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  caddy_data:
+  caddy_config:
+  postgres_data:

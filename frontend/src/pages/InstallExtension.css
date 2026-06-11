@@ -1,226 +1,354 @@
-/* ===============================
-   INSTALL EXTENSION – PREMIUM UI
-   =============================== */
+/* ============================================================
+   ToxiGuard AI — Premium Install Page Styles (Blended Theme)
+   ============================================================ */
 
 .install-page {
   min-height: 100vh;
-  padding: 60px 20px;
+  background: #f8fafc; /* Global light slate background for sections */
+  color: #0f172a;
+  font-family: var(--font-body);
   display: flex;
-  justify-content: center;
-  align-items: center;
-
-  background:
-    radial-gradient(circle at 20% 0%, rgba(94,203,255,0.15), transparent 40%),
-    radial-gradient(circle at 80% 20%, rgba(124,108,255,0.15), transparent 40%),
-    linear-gradient(180deg, #06122e 0%, #030b1f 100%);
-
-  color: #f9fafc;
-  font-family: Inter, system-ui, -apple-system, sans-serif;
+  flex-direction: column;
 }
 
-/* ===== MAIN CONTAINER ===== */
-.install-container {
-  width: 100%;
-  max-width: 900px;
-  padding: 60px 50px;
-
-  border-radius: 28px;
-  backdrop-filter: blur(20px);
-  background: rgba(13, 14, 13, 0.6);
-  border: 2px solid rgba(16, 175, 243, 0.9);
-
-  box-shadow:
-    0 40px 120px rgba(0, 0, 0, 0.8),
-    0 0 80px rgb(42, 187, 244);
-}
-
-/* ===== HEADER ===== */
-.install-header {
+/* ─── Hero Section (Dark Theme) ─────────────────────────── */
+.install-hero-wrapper {
+  background: #030712;
+  position: relative;
+  overflow: hidden;
+  padding: 100px 24px 80px;
   text-align: center;
-  margin-bottom: 50px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.install-header h1 {
-  font-size: clamp(3rem, 4vw, 3rem);
-  font-weight: 800;
-  margin-bottom: 16px;
+.install-hero-glow {
+  position: absolute;
+  top: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(6, 182, 212, 0.05) 50%, transparent 100%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 1;
+}
 
-  background: linear-gradient(100deg, #f12727, #5ecbff);
+.install-hero-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
+  background-size: 24px 24px;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+  pointer-events: none;
+}
+
+.install-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.install-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 24px;
+}
+
+.install-hero-content h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  margin-bottom: 18px;
+}
+
+.install-hero-gradient {
+  background: linear-gradient(135deg, #38bdf8, #818cf8);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.subtitle {
-  max-width: 650px;
-  margin: 0 auto;
-  color: #fdfeff;
-  font-size: 1.25rem;
-  line-height: 1.7;
+.install-hero-content p {
+  font-size: 1.15rem;
+  color: #94a3b8;
+  max-width: 580px;
+  margin: 0 auto 36px;
+  line-height: 1.6;
 }
 
-/* ===== CTA ===== */
-.install-cta {
-  text-align: center;
-  margin-bottom: 60px;
-}
-
-.download-btn {
-  display: inline-block;
+.install-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   padding: 16px 36px;
   border-radius: 999px;
-
-  background: linear-gradient(135deg, #6ad0ff, #db3aff);
-  color: #00040c;
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  color: #ffffff;
+  font-family: var(--font-heading);
   font-weight: 700;
+  font-size: 1rem;
   text-decoration: none;
-
-  box-shadow: 10px 18px 50px rgba(20, 148, 245, 0.943);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
 }
 
-.download-btn:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 25px 65px rgba(62,170,255,0.7);
-}
-
-.secure-note {
-  margin-top: 14px;
-  font-size: 1rem;
-  color: #f6f7f9;
-}
-
-/* ===== STEPS CARD ===== */
-.steps-card,
-.usage-card {
-  margin-top: 50px;
-  padding: 40px 30px;
-  border-radius: 22px;
-  background: rgb(12, 0, 15);
-  border: 2px solid rgb(17, 101, 245);
-}
-
-.steps-card h3,
-.usage-card h3 {
-  margin-bottom: 30px;
-  font-size: 1.6rem;
-  text-align: center;
-  color: #06a8f3;
-}
-
-/* ===== GRID ===== */
-.steps-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 24px;
-}
-
-/* ===== STEP ITEM ===== */
-.step {
-  background: rgba(15, 25, 55, 0.6);
-  border-radius: 18px;
-  padding: 28px 22px;
-  border: 2px solid rgba(26, 129, 240, 0.97);
-  transition: all 0.3s ease;
-}
-
-.step:hover {
-  transform: translateY(-6px);
-  border-color: rgba(52, 225, 244, 0.943);
-  box-shadow: 0 20px 45px rgba(18, 162, 245, 0.954);
-}
-
-.step span {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-
-  width: 38px;
-  height: 38px;
-  margin-bottom: 14px;
-
-  border-radius: 50%;
-  font-weight: 700;
-
-  background: linear-gradient(135deg, #6ad0ff, #7c6cff);
-  color: #02122e;
-}
-
-.step p {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #f9fafc;
-}
-
-/* ===== USAGE NOTE ===== */
-.usage-note {
-  margin-top: 30px;
-  padding: 18px;
-  border-radius: 14px;
-  background: rgba(94,203,255,0.08);
-  border: 1px solid rgba(94,203,255,0.25);
-  text-align: center;
-  font-size: 0.9rem;
-  color: #9fb3d9;
-}
-
-/* ===== SECURITY ===== */
-.security-box {
-  margin-top: 60px;
-  padding: 30px;
-  border-radius: 18px;
-  text-align: center;
-
-  background: rgba(124,108,255,0.06);
-  border: 2px solid rgba(125, 108, 255, 0.977);
-}
-
-.security-box h4 {
-  margin-bottom: 12px;
-  color: #7c6cff;
-  font-size: 2rem;
-}
-
-.security-box p {
-  color: #f7f7fa;
-  font-size: 1rem;
-  line-height: 1.7;
-}
-
-/* ===== FOOTER BUTTON ===== */
-.install-footer {
-  margin-top: 50px;
-  text-align: center;
-}
-
-.back-btn {
-  padding: 14px 30px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: transparent;
-  color: #5ef68b;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-.back-btn:hover {
-  background: rgba(94,203,255,0.1);
-  border-color: #5ecbff;
+.install-download-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(6, 182, 212, 0.45);
   color: #ffffff;
 }
 
-/* ===== RESPONSIVE ===== */
+.install-download-btn span {
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.install-download-btn:hover span {
+  transform: translateX(4px);
+}
+
+.install-note {
+  margin-top: 18px;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+/* ─── Main Content (Blended Light Theme) ─────────────────── */
+.install-main-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 60px 24px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  z-index: 10;
+}
+
+.install-section {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.install-section-header {
+  text-align: center;
+}
+
+.install-section-header h2 {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+
+.install-section-header p {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* Grid of steps */
+.install-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.install-step-card {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  border-radius: var(--radius-lg);
+  padding: 30px 26px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.install-step-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, transparent);
+  transition: background 0.3s ease;
+}
+
+.install-step-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
+  border-color: rgba(99, 102, 241, 0.15);
+}
+
+.install-step-card:hover::before {
+  background: linear-gradient(90deg, #6366f1, #06b6d4);
+}
+
+.install-step-num-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #4f46e5;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+}
+
+.install-step-card p {
+  color: #334155;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.install-step-card a {
+  color: #4f46e5;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.install-step-card a:hover {
+  color: #06b6d4;
+}
+
+.install-tip-box {
+  background: rgba(245, 158, 11, 0.05);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  border-radius: var(--radius-md);
+  padding: 16px 24px;
+  color: #b45309;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 720px;
+  margin: 10px auto 0;
+}
+
+.install-tip-icon {
+  font-size: 1.3rem;
+}
+
+/* ─── Security section (Dark Card) ─────────────────────── */
+.install-security-wrapper {
+  background: #090d16;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+}
+
+.install-security-glow {
+  position: absolute;
+  bottom: -50px;
+  right: -50px;
+  width: 250px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+.install-security-content {
+  position: relative;
+  z-index: 2;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.install-security-icon {
+  font-size: 2.2rem;
+  margin-bottom: 16px;
+  display: inline-block;
+}
+
+.install-security-content h3 {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.install-security-content p {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* ─── Navigation Buttons ────────────────────────────── */
+.install-navigation {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.back-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-home-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+/* ─── Responsive Styles ─────────────────────────────────── */
 @media (max-width: 768px) {
-  .install-container {
-    padding: 40px 24px;
+  .install-hero-wrapper {
+    padding: 80px 20px 60px;
   }
 
-  .steps-card,
-  .usage-card {
+  .install-main-container {
+    padding: 40px 16px 60px;
+    gap: 40px;
+  }
+
+  .install-security-wrapper {
     padding: 30px 20px;
-  }
-
-  .install-header h1 {
-    font-size: 2rem;
   }
 }

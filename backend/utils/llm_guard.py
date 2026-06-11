@@ -1,15 +1,15 @@
 import os
 import json
 import re
-import time
+import hashlib
+from collections import OrderedDict
 from threading import Lock
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# =====================================================
-# LOAD ENVIRONMENT
-# =====================================================
+from app.core.logger import logger
 
+# LOAD ENVIRONMENT
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 ENV_PATH = os.path.join(BASE_DIR, ".env")
 load_dotenv(ENV_PATH)
@@ -18,15 +18,19 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 OPENROUTER_MODEL = os.getenv(
     "OPENROUTER_MODEL",
-    "arcee-ai/trinity-large-preview:free"
+    "liquid/lfm-2.5-1.2b-thinking:free"
+)
+
+# Optional fallback model (used when primary model fails or times out)
+OPENROUTER_FALLBACK_MODEL = os.getenv(
+    "OPENROUTER_FALLBACK_MODEL",
+    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
 )
 
 if not OPENROUTER_API_KEY:
     raise RuntimeError("OPENROUTER_API_KEY not found in environment")
 
-# =====================================================
 # OPENROUTER CLIENT
-# =====================================================
 
 client = OpenAI(
     api_key=OPENROUTER_API_KEY,
@@ -34,22 +38,40 @@ client = OpenAI(
     timeout=20.0
 )
 
-# =====================================================
-# THROTTLING + CACHE CONFIG
-# =====================================================
+# LRU CACHE (replaces naive cooldown)
 
-LLM_COOLDOWN = 5  # seconds
+_CACHE_MAX_SIZE = 128
+_cache: OrderedDict = OrderedDict()
+_cache_lock = Lock()
 
-_last_llm_time = 0.0
-_last_prompt = None
-_last_llm_result = None
-_llm_lock = Lock()
 
-# =====================================================
+def _cache_key(text: str) -> str:
+    """Generate a short hash key for cache lookup."""
+    return hashlib.sha256(text.strip().lower().encode()).hexdigest()[:16]
+
+
+def _cache_get(key: str) -> dict | None:
+    """Thread-safe LRU cache get."""
+    with _cache_lock:
+        if key in _cache:
+            _cache.move_to_end(key)
+            return _cache[key]
+    return None
+
+
+def _cache_set(key: str, value: dict):
+    """Thread-safe LRU cache set with eviction."""
+    with _cache_lock:
+        _cache[key] = value
+        _cache.move_to_end(key)
+        while len(_cache) > _CACHE_MAX_SIZE:
+            _cache.popitem(last=False)
+
+
 # SAFE JSON EXTRACTION
-# =====================================================
 
 def _extract_json(text: str) -> dict:
+    """Safely extract JSON from LLM response, handling extra text."""
     try:
         return json.loads(text)
     except Exception:
@@ -64,368 +86,161 @@ def _extract_json(text: str) -> dict:
 
     return {}
 
-# =====================================================
 # STRICT MODERATION PROMPT
-# =====================================================
 
 SYSTEM_PROMPT = """
-You are an AI content moderation engine.
+You are an advanced AI content moderation system.
 
-Analyze the user text and classify it.
+Your task is to deeply analyze the input text and explain the reasoning.
 
-Return ONLY valid JSON with EXACTLY this schema:
+Return ONLY valid JSON with this schema:
 
 {
-  "toxic": true or false,
-  "confidence": 0.0 to 1.0,
-  "severity": "low" | "medium" | "high",
-  "category": "one_word_label",
-  "detected_phrases": ["exact words or phrases"],
-  "explanation": "One or two clear sentences explaining the decision"
+  "toxic": true,
+  "confidence": 0.95,
+  "severity": "high",
+  "category": "hate",
+  "detected_phrases": ["example word"],
+  "explanation": "Clear explanation of the toxicity..."
 }
 
-Allowed category values (choose ONE only):
-
-sexual
-abusive
-harassment
-hate
-threat
-violence
-self_harm
-spam
-toxic
-safe
+Field requirements:
+- "toxic": boolean (true/false)
+- "confidence": float between 0.0 and 1.0
+- "severity": string ("low", "medium", or "high")
+- "category": string (must be one of the allowed categories)
+- "detected_phrases": array of exact abusive words/phrases found
+- "explanation": 2-4 clear sentences explaining why the content is toxic or safe
 
 Rules:
-- Category MUST be exactly one word from the list
-- Do NOT return multiple categories
-- Do NOT include explanation inside category
-- Explanation must be concise and specific
-- No markdown
-- No extra text outside JSON
+- Explanation MUST clearly explain WHY the content is toxic or safe
+- Mention specific words or phrases responsible
+- Explain the intent or meaning (insult, sexual, threat, etc.)
+- Describe potential harm or impact
+- Use natural human-like reasoning (not robotic)
+- Consider CONTEXT: "I hate rainy days" is NOT toxic. "I hate you, die" IS toxic.
+- Words like "hate", "kill", "die" are only toxic when directed at people with harmful intent
+
+Allowed categories:
+sexual, abusive, harassment, hate, threat, violence, self_harm, spam, toxic, safe
+
+Return ONLY JSON. No extra text.
 """.strip()
 
-# =====================================================
-# MODEL CAPABILITY CHECK
-# =====================================================
+# VALID CATEGORIES
 
-def _supports_system_role(model: str) -> bool:
-    model = model.lower()
-    return "gemma" not in model
+VALID_CATEGORIES = {
+    "sexual", "abusive", "harassment", "hate",
+    "threat", "violence", "self_harm",
+    "spam", "toxic", "safe"
+}
 
-# =====================================================
+# DEFAULT SAFE RESPONSE
+
+DEFAULT_SAFE_RESPONSE = {
+    "toxic": False,
+    "confidence": 0.0,
+    "severity": "low",
+    "category": "safe",
+    "detected_phrases": [],
+    "explanation": "LLM unavailable or parsing failed"
+}
+
 # MAIN FUNCTION
-# =====================================================
 
 def analyze_toxicity_llm(text: str) -> dict:
-    global _last_llm_time, _last_prompt, _last_llm_result
+    """
+    Uses LLM to analyze toxicity with explainability.
+    Results are cached (LRU, 128 entries) to prevent redundant calls.
+    Tries the primary model first, then falls back to a secondary model on failure.
+    """
 
-    now = time.time()
-
-    # ---------- CACHE ----------
-    with _llm_lock:
-        if text == _last_prompt and _last_llm_result:
-            return _last_llm_result
-
-        if now - _last_llm_time < LLM_COOLDOWN:
-            return {
-                "toxic": False,
-                "confidence": 0.0,
-                "severity": "low",
-                "category": "safe",
-                "detected_phrases": [],
-                "explanation": "LLM throttled to prevent rate limit"
-            }
+    # ---------- CACHE CHECK ----------
+    key = _cache_key(text)
+    cached = _cache_get(key)
+    if cached is not None:
+        return cached
 
     try:
         # ---------- BUILD PROMPT ----------
-        if _supports_system_role(OPENROUTER_MODEL):
-            messages = [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": text}
-            ]
-        else:
-            merged = f"{SYSTEM_PROMPT}\n\nUSER_TEXT:\n{text}"
-            messages = [{"role": "user", "content": merged}]
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": text}
+        ]
 
         # ---------- CALL MODEL ----------
-        response = client.chat.completions.create(
-            model=OPENROUTER_MODEL,
-            messages=messages,
-            temperature=0.2,
-            max_tokens=350
-        )
+        # Try primary model first
+        try:
+            response = client.chat.completions.create(
+                model=OPENROUTER_MODEL,
+                messages=messages,
+                temperature=0.4,
+                max_tokens=2048
+            )
+        except Exception as primary_err:
+            logger.warning(f"[LLM] Primary model error: {primary_err} — trying fallback")
+            # Fallback to secondary model
+            response = client.chat.completions.create(
+                model=OPENROUTER_FALLBACK_MODEL,
+                messages=messages,
+                temperature=0.5,
+                max_tokens=2048
+            )
 
-        raw_text = response.choices[0].message.content.strip()
+        content = response.choices[0].message.content
+        raw_text = (content or "").strip()
         parsed = _extract_json(raw_text)
 
+        # ---------- VALIDATE EXPLANATION ----------
         explanation = str(parsed.get("explanation", "")).strip()
-        if len(explanation) < 15:
-            explanation = "Explanation not provided."
+        if len(explanation) < 20:
+            if parsed.get("detected_phrases"):
+                explanation = (
+                    f"The content contains potentially harmful language such as "
+                    f"{', '.join(parsed.get('detected_phrases'))}. "
+                    f"This indicates {parsed.get('category', 'toxic')} behavior "
+                    f"which may negatively affect individuals or communities."
+                )
+            else:
+                explanation = (
+                    "The content appears to be safe with no strong "
+                    "indicators of harmful or abusive intent."
+                )
 
         # ---------- VALIDATE CATEGORY ----------
-        valid_categories = {
-            "sexual","abusive","harassment","hate",
-            "threat","violence","self_harm",
-            "spam","toxic","safe"
-        }
-
         cat = str(parsed.get("category", "safe")).lower()
-        if cat not in valid_categories:
+        if cat not in VALID_CATEGORIES:
             cat = "toxic"
 
+        is_toxic = bool(parsed.get("toxic", False))
+        
+        try:
+            conf = float(parsed.get("confidence", 0.0))
+        except (ValueError, TypeError):
+            conf = 0.0
+            
+        # Handle cases where model outputs percentages (e.g. 95 instead of 0.95)
+        if conf > 1.0:
+            conf = conf / 100.0
+            
+        # Ensure confidence aligns with the toxic flag if the LLM hallucinated a 0 or missed the key
+        if is_toxic and conf < 0.5:
+            conf = 0.85
+
         result = {
-            "toxic": bool(parsed.get("toxic", False)),
-            "confidence": float(parsed.get("confidence", 0.0)),
+            "toxic": is_toxic,
+            "confidence": conf,
             "severity": parsed.get("severity", "low"),
-            "category": cat,                     # ⭐ Reason label
+            "category": cat,
             "detected_phrases": parsed.get("detected_phrases", []),
-            "explanation": explanation           # ⭐ LLM Explanation
+            "explanation": explanation
         }
 
-        # ---------- UPDATE CACHE ----------
-        with _llm_lock:
-            _last_llm_time = time.time()
-            _last_prompt = text
-            _last_llm_result = result
+        # ---------- CACHE RESULT ----------
+        _cache_set(key, result)
 
         return result
 
     except Exception as e:
-        print("⚠️ LLM Error:", e)
-
-        return {
-            "toxic": False,
-            "confidence": 0.0,
-            "severity": "low",
-            "category": "safe",
-            "detected_phrases": [],
-            "explanation": "LLM unavailable or parsing failed"
-        }
-
-
-
-
-
-
-
-
-
-# import os
-# import json
-# import re
-# import time
-# from threading import Lock
-# from dotenv import load_dotenv
-# from openai import OpenAI
-
-# # =====================================================
-# # LOAD ENVIRONMENT
-# # =====================================================
-
-# BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-# ENV_PATH = os.path.join(BASE_DIR, ".env")
-# load_dotenv(ENV_PATH)
-
-# OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-
-# # Default model (free tier)
-# OPENROUTER_MODEL = os.getenv(
-#     "OPENROUTER_MODEL",
-#     "arcee-ai/trinity-large-preview:free"
-# )
-
-# if not OPENROUTER_API_KEY:
-#     raise RuntimeError("OPENROUTER_API_KEY not found in environment")
-
-# # =====================================================
-# # OPENROUTER CLIENT
-# # =====================================================
-
-# client = OpenAI(
-#     api_key=OPENROUTER_API_KEY,
-#     base_url="https://openrouter.ai/api/v1",
-#     timeout=20.0
-# )
-
-# # =====================================================
-# # THROTTLING + CACHE CONFIG
-# # =====================================================
-
-# LLM_COOLDOWN = 5   # seconds (increase if still rate-limited)
-
-# _last_llm_time = 0.0
-# _last_prompt = None
-# _last_llm_result = None
-# _llm_lock = Lock()
-
-# # =====================================================
-# # INTERNAL HELPERS
-# # =====================================================
-
-# def _extract_json(text: str) -> dict:
-#     """
-#     Safely extract JSON from LLM response.
-#     Handles accidental extra text.
-#     """
-#     try:
-#         return json.loads(text)
-#     except Exception:
-#         pass
-
-#     match = re.search(r"\{.*\}", text, re.DOTALL)
-#     if match:
-#         try:
-#             return json.loads(match.group())
-#         except Exception:
-#             pass
-
-#     return {}
-
-# # =====================================================
-# # PROMPT (FORCED EXPLANATION)
-# # =====================================================
-
-# SYSTEM_PROMPT = """
-# You are an AI content moderation engine.
-
-# Your task:
-# 1. Detect whether the user text contains any of the following:
-#    - abusive language
-#    - sexual or explicit content
-#    - harassment or bullying
-#    - hate speech
-#    - threats or violence
-#    - harmful or unsafe intent
-
-# 2. If toxic = true:
-#    - Clearly explain WHY the text was detected.
-#    - Mention the exact word(s) or phrase(s) responsible.
-#    - Explain the potential harm or risk.
-
-# 3. If toxic = false:
-#    - Briefly explain why the content is safe.
-
-# Return ONLY valid JSON in this exact schema:
-
-# {
-#   "toxic": true or false,
-#   "confidence": 0.0 to 1.0,
-#   "severity": "low" | "medium" | "high",
-#   "category": ["category names"],
-#   "detected_phrases": ["exact words or phrases"],
-#   "explanation": "One or two clear sentences explaining the decision"
-# }
-
-# Rules:
-# - No markdown.
-# - No extra text outside JSON.
-# - Explanation must be meaningful and specific.
-# """.strip()
-
-# # =====================================================
-# # MODEL CAPABILITY CHECK
-# # =====================================================
-
-# def _supports_system_role(model: str) -> bool:
-#     """
-#     Gemma models do NOT support system role.
-#     LLaMA / Qwen / Mistral DO support it.
-#     """
-#     model = model.lower()
-#     if "gemma" in model:
-#         return False
-#     return True
-
-# # =====================================================
-# # MAIN API (THROTTLED + CACHED)
-# # =====================================================
-
-# def analyze_toxicity_llm(text: str) -> dict:
-#     """
-#     Uses LLM to analyze toxicity with explainability.
-#     Throttled + cached to prevent rate limits.
-#     """
-
-#     global _last_llm_time, _last_prompt, _last_llm_result
-
-#     now = time.time()
-
-#     # ---------------- Fast cache hit ----------------
-#     with _llm_lock:
-#         if text == _last_prompt and _last_llm_result:
-#             return _last_llm_result
-
-#         # ---------------- Throttle window ----------------
-#         if now - _last_llm_time < LLM_COOLDOWN:
-#             return {
-#                 "toxic": False,
-#                 "confidence": 0.0,
-#                 "severity": "low",
-#                 "category": [],
-#                 "detected_phrases": [],
-#                 "explanation": "LLM throttled to prevent rate limit"
-#             }
-
-#     try:
-#         # ---------------- Build Messages Safely ----------------
-
-#         if _supports_system_role(OPENROUTER_MODEL):
-#             messages = [
-#                 {"role": "system", "content": SYSTEM_PROMPT},
-#                 {"role": "user", "content": text}
-#             ]
-#         else:
-#             merged_prompt = f"{SYSTEM_PROMPT}\n\nUSER_TEXT:\n{text}"
-#             messages = [
-#                 {"role": "user", "content": merged_prompt}
-#             ]
-
-#         # ---------------- LLM Call ----------------
-
-#         response = client.chat.completions.create(
-#             model=OPENROUTER_MODEL,
-#             messages=messages,
-#             temperature=0.2,
-#             max_tokens=350
-#         )
-
-#         raw_text = response.choices[0].message.content.strip()
-#         parsed = _extract_json(raw_text)
-
-#         explanation = str(parsed.get("explanation", "")).strip()
-#         if len(explanation) < 20:
-#             explanation = "LLM did not provide a sufficient explanation."
-
-#         result = {
-#             "toxic": bool(parsed.get("toxic", False)),
-#             "confidence": float(parsed.get("confidence", 0.0)),
-#             "severity": parsed.get("severity", "low"),
-#             "category": parsed.get("category", []),
-#             "detected_phrases": parsed.get("detected_phrases", []),
-#             "explanation": explanation
-#         }
-
-#         # ---------------- Update cache safely ----------------
-#         with _llm_lock:
-#             _last_llm_time = time.time()
-#             _last_prompt = text
-#             _last_llm_result = result
-
-#         return result
-
-#     except Exception as e:
-#         print("⚠️ LLM Error:", e)
-
-#         return {
-#             "toxic": False,
-#             "confidence": 0.0,
-#             "severity": "low",
-#             "category": [],
-#             "detected_phrases": [],
-#             "explanation": "LLM unavailable or parsing failed"
-#         }
-
-# if not OPENROUTER_API_KEY:
-#     raise RuntimeError("OPENROUTER_API_KEY not found")
+        logger.error(f"[LLM] Analysis failed: {e}")
+        return DEFAULT_SAFE_RESPONSE

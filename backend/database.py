@@ -1,23 +1,27 @@
 # database.py
 
 import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+# ✅ load .env file
+load_dotenv()
 
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable is not set")
+# ✅ fallback for local dev
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./toxiguard.db")
 
-# Fix for Render (sometimes gives postgres:// instead of postgresql://)
+# Fix for Render (postgres)
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
+# SQLite fix
+connect_args = {"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True,      # avoids stale connections
-    pool_size=5,
-    max_overflow=10
+    connect_args=connect_args,
+    pool_pre_ping=True
 )
 
 SessionLocal = sessionmaker(
@@ -27,6 +31,7 @@ SessionLocal = sessionmaker(
 )
 
 Base = declarative_base()
+
 
 def get_db():
     db = SessionLocal()

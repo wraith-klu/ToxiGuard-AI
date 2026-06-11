@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToxiGuard AI — Side Panel Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div class="workspace-bg">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="hdr">
+      <div class="hdr-brand">
+        <span class="hdr-logo">🛡️</span>
+        <div>
+          <h1 class="hdr-title">ToxiGuard <span class="accent">AI</span></h1>
+          <p class="hdr-sub">Workspace · <span id="connStatus" class="status-indicator pinging">Connecting...</span></p>
+        </div>
+      </div>
+      <button id="openOptionsBtn" class="icon-btn" title="Open Settings Dashboard">⚙️</button>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="sp-nav">
+      <button class="nav-tab active" id="tab-workspace" onclick="switchTab('workspace')">📊 Workspace</button>
+      <button class="nav-tab" id="tab-platforms" onclick="switchTab('platforms')">🌐 Platforms</button>
+    </nav>
+
+    <!-- Tab Content: Workspace -->
+    <div id="content-workspace" class="tab-pane active">
+      <!-- Counters Grid -->
+      <section class="stats-grid">
+        <div class="stat-card blocked">
+          <div class="stat-icon">🚫</div>
+          <div>
+            <div class="stat-num" id="sToxToday">0</div>
+            <div class="stat-label">Blocked Today</div>
+          </div>
+        </div>
+        <div class="stat-card scanned">
+          <div class="stat-icon">🔍</div>
+          <div>
+            <div class="stat-num" id="sScnToday">0</div>
+            <div class="stat-label">Scanned Today</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Manual Analyzer Panel -->
+      <section class="panel-card manual-analyzer">
+        <h2 class="section-title">⚡ Interactive Shield Analyzer</h2>
+        <p class="section-desc">Instantly moderate custom text using standard ML or deep LLM reasoning.</p>
+        
+        <div class="textarea-wrapper">
+          <textarea id="analyzeTextarea" placeholder="Paste comments, emails, or posts to evaluate..."></textarea>
+          <span class="char-counter" id="charCount">0/1000</span>
+        </div>
+
+        <div class="analyzer-controls">
+          <label class="deep-scan-toggle" title="Perform a deep context evaluation using LLM">
+            <input type="checkbox" id="deepScanCheckbox" title="Toggle" aria-label="Input field">
+            <span class="toggle-slider"></span>
+            <span class="toggle-text">🧠 Deep AI Mode</span>
+          </label>
+          <button id="analyzeBtn" class="btn-primary">
+            <span class="btn-text">Shield Scan</span>
+            <span class="btn-spin hidden">◌</span>
+          </button>
+        </div>
+
+        <!-- Analyzer Result Overlay -->
+        <div id="analysisResult" class="analysis-result hidden">
+          <div class="result-header">
+            <span class="result-status-badge" id="resBadge">UNKNOWN</span>
+            <span class="result-meta" id="resMeta">Confidence: --%</span>
+          </div>
+          <p class="result-verdict" id="resVerdict">No evaluation run yet.</p>
+          <div class="meter-bar">
+            <div class="meter-fill" id="resMeter"></div>
+          </div>
+          
+          <!-- LLM Explanation Section -->
+          <div id="llmExplainBlock" class="llm-explanation hidden">
+            <div class="explain-title">🧠 Deep AI Reasoning:</div>
+            <div class="explain-body" id="llmExplainBody"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recent Detections List -->
+      <section class="panel-card detections-card">
+        <div class="card-hdr-flex">
+          <h2 class="section-title">⏱️ Live Threat Intel</h2>
+          <button id="clearFeedBtn" class="clear-btn">Clear</button>
+        </div>
+        <div class="detections-feed" id="detectionsFeed">
+          <div class="feed-empty">No content issues identified yet. Keep browsing safely! 🌟</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Tab Content: Platforms -->
+    <div id="content-platforms" class="tab-pane">
+      <section class="panel-card">
+        <h2 class="section-title">🌐 Platform Shields</h2>
+        <p class="section-desc">Toggle background scanning and moderation for social media channels.</p>
+        
+        <div class="platform-toggles-list" id="platformToggles">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </section>
+
+      <section class="panel-card mode-card">
+        <h2 class="section-title">🛡️ Moderation Mode</h2>
+        <p class="section-desc">Choose how flagged content behaves in browser.</p>
+        
+        <div class="mode-options">
+          <label class="mode-opt">
+            <input type="radio" name="sp-mode" value="highlight" id="sp-mHighlight" title="Select Option" aria-label="Input field">
+            <div class="mode-box">
+              <span class="box-emoji">🎨</span>
+              <span class="box-title">Highlight</span>
+              <span class="box-desc">Add colored outline to toxic text</span>
+            </div>
+          </label>
+          <label class="mode-opt">
+            <input type="radio" name="sp-mode" value="blur" id="sp-mBlur" title="Select Option" aria-label="Input field">
+            <div class="mode-box">
+              <span class="box-emoji">🌫️</span>
+              <span class="box-title">Blur content</span>
+              <span class="box-desc">Blurs content until clicked</span>
+            </div>
+          </label>
+          <label class="mode-opt">
+            <input type="radio" name="sp-mode" value="hide" id="sp-mHide" title="Select Option" aria-label="Input field">
+            <div class="mode-box">
+              <span class="box-emoji">🚫</span>
+              <span class="box-title">Remove</span>
+              <span class="box-desc">Delete toxic elements completely</span>
+            </div>
+          </label>
+        </div>
+      </section>
+    </div>
+
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

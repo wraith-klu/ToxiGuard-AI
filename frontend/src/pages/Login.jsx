@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useToast } from "../components/Toast";
 import "./Login.css";
 
-
-const API =
-  import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8090";
+const API = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8000";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -12,12 +11,13 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const toast = useToast();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     if (!email || !password) {
-      alert("Enter email and password");
+      toast.error("Please enter email and password");
       return;
     }
 
@@ -26,25 +26,23 @@ export default function Login() {
 
       const res = await fetch(`${API}/auth/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, password })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
 
-      if (res.ok && data.token) {
-        localStorage.setItem("token", data.token);
+      if (res.ok && data.api_key) {
+        localStorage.setItem("api_key", data.api_key);
+        if (data.token) localStorage.setItem("token", data.token);
 
-        alert("Login successful");
+        toast.success("Welcome back!");
         navigate("/dashboard");
       } else {
-        alert(data.detail || "Login failed");
+        toast.error(data.detail || "Invalid credentials");
       }
-
     } catch (err) {
-      alert("Backend not reachable");
+      toast.error("Cannot connect to server");
       console.error(err);
     } finally {
       setLoading(false);
@@ -54,19 +52,22 @@ export default function Login() {
   return (
     <div className="auth-page">
       <div className="auth-container">
-
-        {/* LEFT */}
+        {/* Left Form */}
         <div className="auth-card">
-          <div className="auth-brand">ToxiGuard.AI</div>
+          <div className="auth-brand">
+            <span className="auth-brand-icon">◆</span>
+            <span className="auth-brand-text">ToxiGuard AI</span>
+          </div>
 
-          <h2>Login</h2>
+          <h2>Welcome back</h2>
 
           <form onSubmit={handleLogin} className="auth-form">
             <input
               type="email"
-              placeholder="Email"
+              placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
             />
 
             <input
@@ -74,17 +75,18 @@ export default function Login() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
             />
 
             <button type="submit" disabled={loading}>
-              {loading ? "Logging in..." : "Login"}
+              {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
           <p className="auth-alt">
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <Link to="/signup" className="auth-link">
-              Sign Up
+              Create one
             </Link>
           </p>
 
@@ -96,11 +98,10 @@ export default function Login() {
           </button>
         </div>
 
-        {/* RIGHT */}
+        {/* Right Image */}
         <div className="auth-right">
-          <img src="/toxi4.jpg" alt="Image" />
+          <img src="/toxi4.jpg" alt="ToxiGuard AI" />
         </div>
-
       </div>
     </div>
   );

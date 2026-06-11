@@ -1,124 +1,192 @@
 # =========================================================
-# 🔐 ENV & SECRETS (NEVER COMMIT)
+# ToxiGuard AI — Global GitIgnore Rules
 # =========================================================
 
+# ─── 1. ENVIRONMENT & SECRETS ────────────────────────────
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .env.*
 !.env.example
+!.env.test
 
-# =========================================================
-# 🐍 PYTHON (BACKEND)
-# =========================================================
-
+# ─── 2. PYTHON (BACKEND) ─────────────────────────────────
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual environments
+# C extensions
+*.so
+
+# Distribution / packaging
+bin/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Pyinstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit testing / coverage reports
+htmlcov/
+.tox/
+.nosexy
+.pytest_cache/
+.instafail
+.mypy_cache/
+.pyre/
+.pytype/
+coffeed/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Python Virtual Environments
 venv/
 .env/
 .venv/
 ENV/
 env/
+non-existing-venv/
 
-# Python build / packaging
-build/
-dist/
-*.egg-info/
-.eggs/
-
-# Logs & databases
-*.log
-*.sqlite3
-*.db
-
-# Pytest / coverage
-.pytest_cache/
-.coverage
-htmlcov/
-
-# =========================================================
-# 🤖 ML ARTIFACTS (OPTIONAL — uncomment if needed)
-# =========================================================
-
-# Large model files (usually don't commit)
-# backend/models/
-# backend/data/
-# *.joblib
-# *.pkl
-# *.h5
-
-# =========================================================
-# ⚛️ FRONTEND (NODE / VITE / REACT)
-# =========================================================
-
+# ─── 3. FRONTEND (NODE / VITE / REACT) ────────────────────
+# Dependencies
 node_modules/
-dist/
-.vite/
-.cache/
+jspm_packages/
 
-# Package managers
+# Production build outputs
+dist/
+tmp/
+out/
+
+# Vite / Next.js / build caches
+.vite/
+.next/
+.cache/
+.eslintcache
+.stylelintcache
+.parcel-cache
+
+# Log files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-# Frontend env files
-frontend/.env
-frontend/.env.*
+# Serverless directories
+.serverless/
 
-# =========================================================
-# 🌐 CHROME EXTENSION BUILD FILES
-# =========================================================
+# ─── 4. DATABASE & LOGS ──────────────────────────────────
+*.log
+*.sqlite3
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
 
-# Ignore packaged extension zips
+# ─── 5. MACHINE LEARNING & LARGE DATA ────────────────────
+# Local dataset directories
+backend/data/
+*.csv
+*.tsv
+*.jsonl
+
+# Large model binaries and weights
+*.joblib
+*.pkl
+*.h5
+*.pb
+*.onnx
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.model
+
+# ─── 6. CHROME EXTENSION ─────────────────────────────────
 *.zip
 *.crx
-
-# Keep source extension folder tracked
+*.pem
 !extension/
 
-# =========================================================
-# 📦 DEPLOYMENT / CLOUD
-# =========================================================
+# ─── 7. IDEs & EDITORS ───────────────────────────────────
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
 
-.vercel/
-.render/
-*.pid
-
-# =========================================================
-# 🧠 IDE / EDITORS
-# =========================================================
-
-.vscode/
+# JetBrains (IntelliJ, PyCharm, WebStorm, etc.)
 .idea/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
 *.swp
 *.swo
 *.swn
+*~
 
-# =========================================================
-# 💻 OS FILES
-# =========================================================
-
+# ─── 8. SYSTEM & OS FILES ────────────────────────────────
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
 Thumbs.db
+ehthumbs.db
 desktop.ini
+$RECYCLE.BIN/
 
-# =========================================================
-# 🧹 TEMP / BACKUP FILES
-# =========================================================
+# Linux
+.directory
+.Trash-*
 
+# ─── 9. TEMP & BACKUPS ───────────────────────────────────
 *.tmp
 *.bak
 *.old
 *.orig
-
-# =========================================================
-# 🔒 MISC
-# =========================================================
-
-coverage/
-*.coverage
-
-backend/data/
-*.csv
