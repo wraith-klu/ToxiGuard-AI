@@ -89,7 +89,12 @@ function normalizeAnalysisResult(data) {
   const severity = data.severity || ml.severity || (
     confidence >= 0.85 ? "high" : confidence >= 0.6 ? "medium" : "low"
   );
-  const category = data.category || detected[0] || label || data.source || "ml";
+  let category = "safe";
+  if (toxic) {
+    category = (data.category && data.category !== "safe" && data.category !== "clean")
+      ? data.category
+      : (detected[0] || (TOXIC_ML_LABELS.has(label) ? label : "toxic"));
+  }
 
   return {
     ...data,

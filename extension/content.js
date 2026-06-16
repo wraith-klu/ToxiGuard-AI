@@ -176,7 +176,14 @@ async function tgQuickAnalyze(text, deep = false) {
 function tgConfidence(result) {
   const ml = result?.ml || {};
   const labels = result?.labels || ml.labels || {};
-  const labelScores = Object.values(labels).map(Number).filter(Number.isFinite);
+  const toxicLabels = new Set([
+    "abusive", "toxic", "severe_toxic", "obscene",
+    "threat", "insult", "identity_hate"
+  ]);
+  const labelScores = Object.entries(labels)
+    .filter(([name]) => toxicLabels.has(name.toLowerCase()))
+    .map(([, score]) => Number(score))
+    .filter(Number.isFinite);
   return Math.max(
     Number(result?.confidence) || 0,
     Number(result?.toxicity_probability) || 0,
@@ -187,8 +194,27 @@ function tgConfidence(result) {
 
 function tgCategory(result) {
   const ml = result?.ml || {};
-  const detected = result?.detected_categories || ml.detected_categories || [];
-  return result?.category || detected[0] || result?.label || ml.label || result?.source || "ml";
+  const detected = (result?.detected_categories || ml.detected_categories || [])
+    .map(c => String(c).toLowerCase());
+  const label = String(result?.label || ml.label || "").toLowerCase();
+  const toxic = tgIsToxic(result) || result?.toxic;
+
+  if (!toxic) return "safe";
+
+  if (result?.category && result.category !== "safe" && result.category !== "clean") {
+    return result.category;
+  }
+  if (detected.length > 0) {
+    return detected[0];
+  }
+  const toxicLabels = new Set([
+    "abusive", "toxic", "severe_toxic", "obscene",
+    "threat", "insult", "identity_hate"
+  ]);
+  if (toxicLabels.has(label)) {
+    return label;
+  }
+  return "toxic";
 }
 
 function tgReason(result) {

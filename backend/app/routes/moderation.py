@@ -139,7 +139,12 @@ def normalize_ml_result(ml_result: dict | None, threshold: float = 0.4) -> dict:
 
     category = "safe"
     if toxic:
-        category = detected_categories[0] if detected_categories else (label or "toxic")
+        if detected_categories:
+            category = detected_categories[0]
+        elif label and label not in ("clean", "safe") and label in TOXIC_ML_LABELS:
+            category = label
+        else:
+            category = "toxic"
 
     return {
         "toxic": toxic,

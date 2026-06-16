@@ -100,7 +100,7 @@ export default function Login() {
 
         {/* Right Image */}
         <div className="auth-right">
-          <img src="/toxi4.jpg" alt="ToxiGuard AI" />
+          <img src="/lll.jpg" alt="ToxiGuard AI" />
         </div>
       </div>
     </div>
