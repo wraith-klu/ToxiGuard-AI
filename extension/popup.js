@@ -1,4 +1,4 @@
-let API = "http://127.0.0.1:8000";
+let API = "https://toxiguard-ai-agent-v3.onrender.com";
 
 // Fetch the dynamic base URL from background on load
 chrome.runtime.sendMessage({ action: "GET_API_URL" }, (res) => {
@@ -21,8 +21,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Set default api_url if not present
   if (!data.api_url) {
-    await store.set({ api_url: "http://127.0.0.1:8000" });
-    data.api_url = "http://127.0.0.1:8000";
+    await store.set({ api_url: "https://toxiguard-ai-agent-v3.onrender.com" });
+    data.api_url = "https://toxiguard-ai-agent-v3.onrender.com";
   }
 
   if (data.api_key) {
@@ -49,7 +49,7 @@ function bindAuth() {
   if (connectBtn) {
     connectBtn.addEventListener("click", () => {
       chrome.runtime.sendMessage({ action: "GET_WEB_URL" }, (res) => {
-        const url = (res && res.url) ? res.url : "http://localhost:5173";
+        const url = (res && res.url) ? res.url : "https://toxiai-agent.vercel.app";
         chrome.tabs.create({ url: `${url}/login` });
       });
     });
@@ -114,7 +114,7 @@ async function renderDash(data) {
   // Backend URL configuration
   const dashUrlField = document.getElementById("dashBackendUrl");
   if (dashUrlField) {
-    dashUrlField.value = data.api_url || "http://127.0.0.1:8000";
+    dashUrlField.value = data.api_url || "https://toxiguard-ai-agent-v3.onrender.com";
   }
   
   const saveDashBtn = document.getElementById("saveDashBackendBtn");

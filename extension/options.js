@@ -2,7 +2,7 @@
 // ToxiGuard AI — Options / SaaS Analytics JavaScript v2.0
 // ============================================================
 
-let TG_API = "http://127.0.0.1:8000";
+let TG_API = "https://toxiguard-ai-agent-v3.onrender.com";
 
 // Fetch the dynamic base URL from background on load
 chrome.runtime.sendMessage({ action: "GET_API_URL" }, (res) => {
@@ -52,8 +52,8 @@ async function loadData() {
   // Sync Global checkbox, Backend URL and Frontend URL
   document.getElementById("optionsGlobalSw").checked = settings.enabled !== false;
   document.getElementById("optionsSensLabel").textContent = cap(settings.sensitivity || "medium");
-  document.getElementById("optionsBackendUrl").value = settings.api_url || "http://127.0.0.1:8000";
-  document.getElementById("optionsFrontendUrl").value = settings.web_url || "http://localhost:5173";
+  document.getElementById("optionsBackendUrl").value = settings.api_url || "https://toxiguard-ai-agent-v3.onrender.com";
+  document.getElementById("optionsFrontendUrl").value = settings.web_url || "https://toxiai-agent.vercel.app";
 
   // Load API limits
   const usageLimit = plan === "pro" ? 50000 : 1000;

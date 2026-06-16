@@ -869,7 +869,7 @@
             <div class="form-group m-0">
               <label>Backend API Server</label>
               <div class="form-input-row mt-8">
-                <input type="text" id="optionsBackendUrl" placeholder="http://127.0.0.1:8000" aria-label="Backend API Server URL" title="Backend API Server URL">
+                <input type="text" id="optionsBackendUrl" placeholder="https://toxiguard-ai-agent-v3.onrender.com" aria-label="Backend API Server URL" title="Backend API Server URL">
                 <button class="btn btn-primary" id="saveBackendUrlBtn">Save URL</button>
               </div>
             </div>
@@ -877,7 +877,7 @@
             <div class="form-group m-0">
               <label>Frontend Web Portal</label>
               <div class="form-input-row mt-8">
-                <input type="text" id="optionsFrontendUrl" placeholder="http://localhost:5173" aria-label="Frontend Web Portal URL" title="Frontend Web Portal URL">
+                <input type="text" id="optionsFrontendUrl" placeholder="https://toxiai-agent.vercel.app" aria-label="Frontend Web Portal URL" title="Frontend Web Portal URL">
                 <button class="btn btn-primary" id="saveFrontendUrlBtn">Save URL</button>
               </div>
             </div>
@@ -965,7 +965,7 @@
           <p class="desc-text-mb16">Make a POST request to analyze text in Node.js, Python, or curl.</p>
           
           <pre class="code-block">
-curl -X POST https://toxiguard-ai-agent-1.onrender.com/predict/ml \
+curl -X POST https://toxiguard-ai-agent-v3.onrender.com/predict/ml \
   -H "Content-Type: application/json" \
   -H "X-API-Key: &lt;YOUR_API_KEY&gt;" \
   -d '{"text": "Is this a friendly message?"}'</pre>

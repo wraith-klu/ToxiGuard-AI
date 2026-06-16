@@ -4,22 +4,22 @@
 // ============================================================
 
 // ─── API Configuration ───────────────────────────────────────
-let API_BASE = "http://127.0.0.1:8000";
-let WEB_PORTAL_BASE = "http://localhost:5173";
+let API_BASE = "https://toxiguard-ai-agent-v3.onrender.com";
+let WEB_PORTAL_BASE = "https://toxiai-agent.vercel.app";
 
 async function detectApiUrl() {
   const data = await chrome.storage.local.get(["api_url", "web_url"]);
   if (data.api_url) {
     API_BASE = data.api_url;
   } else {
-    API_BASE = "http://127.0.0.1:8000";
+    API_BASE = "https://toxiguard-ai-agent-v3.onrender.com";
     await chrome.storage.local.set({ api_url: API_BASE });
   }
 
   if (data.web_url) {
     WEB_PORTAL_BASE = data.web_url;
   } else {
-    WEB_PORTAL_BASE = "http://localhost:5173";
+    WEB_PORTAL_BASE = "https://toxiai-agent.vercel.app";
     await chrome.storage.local.set({ web_url: WEB_PORTAL_BASE });
   }
   console.log("🌐 ToxiGuard: Using API URL:", API_BASE);
@@ -34,8 +34,8 @@ const TOXIC_ML_LABELS = new Set([
 
 const DEFAULT_SETTINGS = {
   enabled: true,
-  api_url: "http://127.0.0.1:8000",
-  web_url: "http://localhost:5173",
+  api_url: "https://toxiguard-ai-agent-v3.onrender.com",
+  web_url: "https://toxiai-agent.vercel.app",
   platforms: {
     instagram: true,
     twitter:   true,
