@@ -36,9 +36,8 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24  # 24 hours
 
-    # ── CORS ─────────────────────────────────────────────────────────
     allowed_origins: str = (
-        "https://toxiai.vercel.app,http://localhost:5173,http://127.0.0.1:5173"
+        "https://toxiai.vercel.app,https://toxiai-agent.vercel.app,http://localhost:5173,http://127.0.0.1:5173"
     )
 
     @property
