@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Brain, Zap, Search, BarChart3, Globe, AppWindow } from "lucide-react";
 import Header from "../components/Header";
 import LiveDemo from "../components/LiveDemo";
+import ParticleBackground from "../components/ParticleBackground";
 import "./Home.css";
 
 // =====================================================
@@ -93,6 +94,75 @@ const STEPS = [
   { num: "04", title: "Auto-Moderate", desc: "AI scans comments in real time" },
 ];
 
+const FAQS = [
+  { q: "How fast is the detection API?", a: "Our API operates at edge locations globally, delivering analysis in roughly 50ms, allowing for seamless real-time moderation." },
+  { q: "Does ToxiGuard understand slang or sarcasm?", a: "Yes. Layer 3 utilizes a highly context-aware LLM that correctly identifies nuances, sarcasm, and regional slang, dramatically reducing false positives." },
+  { q: "Can I use it on mobile apps?", a: "Absolutely. Our REST API can be integrated into any frontend or backend stack, including iOS, Android, and React Native applications." },
+  { q: "Is my data used to train your models?", a: "No. Enterprise accounts have a strict zero-data-retention policy. We process your payload in memory and immediately discard it." }
+];
+
+const FAQItem = ({ faq }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className={`faq-item glassmorphism ${isOpen ? 'open' : ''}`} onClick={() => setIsOpen(!isOpen)}>
+      <div className="faq-question">
+        <h4>{faq.q}</h4>
+        <motion.span 
+          animate={{ rotate: isOpen ? 45 : 0 }} 
+          className="faq-icon"
+        >
+          +
+        </motion.span>
+      </div>
+      <motion.div 
+        className="faq-answer-wrapper"
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="faq-answer">{faq.a}</div>
+      </motion.div>
+    </div>
+  );
+};
+
+const BentoCard = ({ children, className, delay }) => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePosition({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  return (
+    <motion.div 
+      className={`bento-card glassmorphism ${className}`}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: delay * 0.1 }}
+    >
+      <motion.div 
+        className="bento-spotlight"
+        animate={{ opacity: isHovered ? 1 : 0 }}
+        style={{ 
+          background: `radial-gradient(400px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(255,255,255,0.06), transparent 40%)` 
+        }}
+      />
+      <div className="bento-content">
+        {children}
+      </div>
+    </motion.div>
+  );
+};
+
 // =====================================================
 // Component
 // =====================================================
@@ -123,6 +193,7 @@ export default function Home() {
 
   return (
     <div className="home-page">
+      <ParticleBackground />
       <Header />
 
       {/* ================= HERO ================= */}
@@ -301,6 +372,118 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ================= SHOWCASE / IN ACTION ================= */}
+      <section className="showcase-section">
+        <motion.div 
+          className="section-header"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <span className="section-tag glassmorphism">See It In Action</span>
+          <h2>Intelligent Moderation</h2>
+          <p>Experience how ToxiGuard seamlessly integrates and protects your digital spaces.</p>
+        </motion.div>
+
+        <div className="showcase-container">
+          <div className="showcase-row">
+            <motion.div 
+              className="showcase-text"
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h3>Context-Aware Detection</h3>
+              <p>
+                Our AI doesn't just look for bad words. It understands the nuances of human language. 
+                Sarcasm, slang, and cultural contexts are processed to ensure accurate moderation without 
+                stifling genuine expression.
+              </p>
+              <ul className="showcase-list">
+                <li><span className="check-icon">✓</span> Semantic analysis via LLMs</li>
+                <li><span className="check-icon">✓</span> Bypasses common obfuscation</li>
+                <li><span className="check-icon">✓</span> Explains why content was flagged</li>
+              </ul>
+            </motion.div>
+            <motion.div 
+              className="showcase-image-wrapper"
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <img src="/toxi1.jpg" alt="Context Aware Detection" className="showcase-image float-hover" />
+              <div className="showcase-glow" />
+            </motion.div>
+          </div>
+
+          <div className="showcase-row reverse">
+            <motion.div 
+              className="showcase-text"
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h3>Real-Time Extension Integration</h3>
+              <p>
+                Moderate directly in your browser. Our lightweight Chrome extension seamlessly integrates 
+                with your favorite platforms like Instagram, Twitter, and Facebook to filter toxicity 
+                before you even see it.
+              </p>
+              <ul className="showcase-list">
+                <li><span className="check-icon">✓</span> Zero-configuration setup</li>
+                <li><span className="check-icon">✓</span> Sub-second processing</li>
+                <li><span className="check-icon">✓</span> Custom filter thresholds</li>
+              </ul>
+            </motion.div>
+            <motion.div 
+              className="showcase-image-wrapper"
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <img src="/toxi2.jpg" alt="Extension Integration" className="showcase-image float-hover" />
+              <div className="showcase-glow" />
+            </motion.div>
+          </div>
+
+          <div className="showcase-row">
+            <motion.div 
+              className="showcase-text"
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h3>Comprehensive Dashboard Analytics</h3>
+              <p>
+                Get granular insights into the health of your community. Track toxicity trends, 
+                identify repeated offenders, and adjust your moderation strategy with powerful, 
+                easy-to-read analytics.
+              </p>
+              <ul className="showcase-list">
+                <li><span className="check-icon">✓</span> Real-time sentiment metrics</li>
+                <li><span className="check-icon">✓</span> Exportable PDF reports</li>
+                <li><span className="check-icon">✓</span> Multi-language breakdowns</li>
+              </ul>
+            </motion.div>
+            <motion.div 
+              className="showcase-image-wrapper"
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <img src="/toxi5.jpg" alt="Dashboard Analytics" className="showcase-image float-hover" />
+              <div className="showcase-glow" />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* ================= FEATURES ================= */}
       <section className="features-section">
         <motion.div 
@@ -314,26 +497,24 @@ export default function Home() {
           <p>Enterprise-grade features designed for real-world content moderation.</p>
         </motion.div>
 
-        <div className="features-grid">
-          {FEATURES.map((f, i) => (
-            <motion.div 
-              key={i} 
-              className="feature-card glassmorphism"
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              whileHover={{ y: -10 }}
-            >
-              <div className="feature-icon-wrapper" style={{ color: f.color }}>
-                {f.icon}
-                <div className="icon-glow" style={{ background: f.color }} />
-              </div>
-              <div className="feature-tag">{f.tag}</div>
-              <h3>{f.title}</h3>
-              <p>{f.desc}</p>
-            </motion.div>
-          ))}
+        <div className="bento-grid">
+          {FEATURES.map((f, i) => {
+            return (
+              <BentoCard 
+                key={i} 
+                delay={i} 
+                className="bento-small"
+              >
+                <div className="feature-icon-wrapper" style={{ color: f.color }}>
+                  {f.icon}
+                  <div className="icon-glow" style={{ background: f.color }} />
+                </div>
+                <div className="feature-tag">{f.tag}</div>
+                <h3>{f.title}</h3>
+                <p>{f.desc}</p>
+              </BentoCard>
+            );
+          })}
         </div>
       </section>
 
@@ -359,6 +540,80 @@ export default function Home() {
               <h3>{s.title}</h3>
               <p>{s.desc}</p>
             </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ================= API SNIPPET ================= */}
+      <section className="api-section">
+        <div className="api-container">
+          <motion.div 
+            className="api-text"
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2>Developer First.</h2>
+            <p>Integrate ToxiGuard into any stack with just a few lines of code. Our RESTful API returns detailed analysis in milliseconds.</p>
+            <div className="api-features">
+              <div className="api-feat"><span className="api-icon">⚡</span> ~50ms latency</div>
+              <div className="api-feat"><span className="api-icon">🔒</span> Enterprise encryption</div>
+              <div className="api-feat"><span className="api-icon">🌍</span> Edge-ready endpoints</div>
+            </div>
+          </motion.div>
+          
+          <motion.div 
+            className="api-terminal-wrapper"
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className="api-terminal glassmorphism">
+              <div className="terminal-header">
+                <div className="term-dots">
+                  <span className="dot red"></span>
+                  <span className="dot yellow"></span>
+                  <span className="dot green"></span>
+                </div>
+                <div className="term-title">analyze.js</div>
+              </div>
+              <pre className="terminal-body">
+                <code>
+<span className="token-keyword">const</span> response <span className="token-operator">=</span> <span className="token-keyword">await</span> <span className="token-function">fetch</span>(<span className="token-string">'https://api.toxiguard.com/v1/analyze'</span>, {'{'}
+  <span className="token-property">method</span>: <span className="token-string">'POST'</span>,
+  <span className="token-property">headers</span>: {'{'}
+    <span className="token-string">'Authorization'</span>: <span className="token-string">'Bearer YOUR_API_KEY'</span>,
+    <span className="token-string">'Content-Type'</span>: <span className="token-string">'application/json'</span>
+  {'}'},
+  <span className="token-property">body</span>: <span className="token-built-in">JSON</span>.<span className="token-function">stringify</span>({'{'}
+    <span className="token-property">text</span>: <span className="token-string">"This user is an absolute idiot."</span>,
+    <span className="token-property">languages</span>: [<span className="token-string">"en"</span>]
+  {'}'})
+{'}'});
+
+<span className="token-keyword">const</span> data <span className="token-operator">=</span> <span className="token-keyword">await</span> response.<span className="token-function">json</span>();
+<span className="token-console">console</span>.<span className="token-function">log</span>(data.<span className="token-property">is_toxic</span>); <span className="token-comment">// true</span>
+                </code>
+              </pre>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ================= FAQ ================= */}
+      <section className="faq-section">
+        <motion.div 
+          className="section-header"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2>Frequently Asked Questions</h2>
+          <p>Everything you need to know about ToxiGuard</p>
+        </motion.div>
+        <div className="faq-list">
+          {FAQS.map((faq, i) => (
+            <FAQItem key={i} faq={faq} />
           ))}
         </div>
       </section>

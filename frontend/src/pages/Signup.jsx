@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "../components/Toast";
+import ParticleBackground from "../components/ParticleBackground";
 import "./Login.css";
 
 const API = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8000";
@@ -54,6 +55,7 @@ export default function Signup() {
 
   return (
     <div className="auth-page">
+      <ParticleBackground />
       <div className="auth-container">
         {/* Left Form */}
         <div className="auth-card">

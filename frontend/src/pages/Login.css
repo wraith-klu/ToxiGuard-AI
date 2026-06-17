@@ -47,12 +47,14 @@
 .auth-container {
   display: flex;
   width: 100%;
-  max-width: 700px;
-  min-height: 420px;
+  max-width: 800px;
+  min-height: 480px;
   border-radius: var(--radius-xl);
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.85);
-  border: 2px solid rgba(15, 23, 42, 0.08);
+  background: var(--surface-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--surface-glass-border);
   box-shadow: var(--shadow-lg);
   position: relative;
   z-index: 1;
@@ -61,13 +63,13 @@
 
 /* Left Card (Form) */
 .auth-card {
-  width: 45%;
-  padding: 32px 28px;
-  background: rgba(255, 255, 255, 0.95);
+  width: 50%;
+  padding: 40px 32px;
+  background: var(--bg-card);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border-right: 1px solid rgba(15, 23, 42, 0.06);
+  border-right: 1px solid var(--surface-glass-border);
 }
 
 /* Brand */
@@ -115,14 +117,19 @@
 }
 
 .auth-form input {
-  padding: 12px 14px;
+  padding: 14px 16px;
   border-radius: var(--radius-md);
-  background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.15);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--surface-glass-border);
   color: var(--text-primary);
   font-family: var(--font-body);
-  font-size: 0.85rem;
-  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .auth-form input {
+  background: rgba(15, 23, 42, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 .auth-form input::placeholder {
@@ -132,7 +139,8 @@
 .auth-form input:focus {
   outline: none;
   border-color: var(--accent-blue);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+  background: var(--bg-primary);
 }
 
 /* Submit Button */
@@ -202,7 +210,7 @@
 
 /* Right Image Panel */
 .auth-right {
-  width: 55%;
+  width: 50%;
   position: relative;
   background: var(--bg-secondary);
   overflow: hidden;

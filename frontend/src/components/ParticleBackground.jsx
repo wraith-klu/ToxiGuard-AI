@@ -102,7 +102,7 @@ export default function ParticleBackground() {
           if (dist < 120) {
             const baseMaxOpacity = isDark ? 0.08 : 0.02;
             const opacity = (1 - dist / 120) * baseMaxOpacity;
-            ctx.strokeStyle = isDark 
+            ctx.strokeStyle = isDark
               ? `rgba(99, 102, 241, ${opacity})`
               : `rgba(99, 102, 241, ${opacity})`;
             ctx.lineWidth = isDark ? 0.5 : 0.35;
