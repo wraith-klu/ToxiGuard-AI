@@ -1,46 +1,29 @@
-import os
 import json
 import re
 import hashlib
 from collections import OrderedDict
 from threading import Lock
-from dotenv import load_dotenv
 from openai import OpenAI
 
 from app.core.logger import logger
-
-# LOAD ENVIRONMENT
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-ENV_PATH = os.path.join(BASE_DIR, ".env")
-load_dotenv(ENV_PATH)
-
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-
-OPENROUTER_MODEL = os.getenv(
-    "OPENROUTER_MODEL",
-    "liquid/lfm-2.5-1.2b-thinking:free"
-)
-
-# Optional fallback model (used when primary model fails or times out)
-OPENROUTER_FALLBACK_MODEL = os.getenv(
-    "OPENROUTER_FALLBACK_MODEL",
-    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
-)
-
-if not OPENROUTER_API_KEY:
-    raise RuntimeError("OPENROUTER_API_KEY not found in environment")
+from app.core.config import settings
 
 # OPENROUTER CLIENT
+if not settings.openrouter_api_key:
+    raise RuntimeError("OPENROUTER_API_KEY not found in environment")
 
 client = OpenAI(
-    api_key=OPENROUTER_API_KEY,
+    api_key=settings.openrouter_api_key,
     base_url="https://openrouter.ai/api/v1",
-    timeout=20.0
+    timeout=settings.llm_timeout
 )
+
+OPENROUTER_MODEL = settings.openrouter_model
+OPENROUTER_FALLBACK_MODEL = settings.openrouter_fallback_model
 
 # LRU CACHE (replaces naive cooldown)
 
-_CACHE_MAX_SIZE = 128
+_CACHE_MAX_SIZE = settings.llm_cache_size
 _cache: OrderedDict = OrderedDict()
 _cache_lock = Lock()
 
@@ -174,8 +157,8 @@ def analyze_toxicity_llm(text: str) -> dict:
             response = client.chat.completions.create(
                 model=OPENROUTER_MODEL,
                 messages=messages,
-                temperature=0.4,
-                max_tokens=2048
+                temperature=settings.llm_temperature,
+                max_tokens=settings.llm_max_tokens
             )
         except Exception as primary_err:
             logger.warning(f"[LLM] Primary model error: {primary_err} — trying fallback")
@@ -183,8 +166,8 @@ def analyze_toxicity_llm(text: str) -> dict:
             response = client.chat.completions.create(
                 model=OPENROUTER_FALLBACK_MODEL,
                 messages=messages,
-                temperature=0.5,
-                max_tokens=2048
+                temperature=settings.llm_temperature + 0.1,
+                max_tokens=settings.llm_max_tokens
             )
 
         content = response.choices[0].message.content

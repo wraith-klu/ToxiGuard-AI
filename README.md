@@ -52,8 +52,8 @@ User Input
                   ▼
 ┌─────────────────────────────────────────┐
 │  Layer 3: LLM Reasoning  (~600ms)       │
-│  Primary:  Moonshot Kimi K2.6 (free)    │
-│  Fallback: Nvidia Nemotron 3 Nano Omni  │
+│  Primary:  Gemma 4 31B (free)           │
+│  Fallback: Qwen3 Next 80B (free)        │
 │  via OpenRouter API                     │
 │  Catches: sarcasm, context, intent      │
 └─────────────────┬───────────────────────┘
@@ -185,8 +185,8 @@ ToxiGuard-AI/
 | **TextBlob** | Polarity and subjectivity sentiment scoring |
 | **VaderSentiment** | Rule-based sentiment for short social media text |
 | **OpenAI SDK** | Client for OpenRouter API (LLM reasoning layer) |
-| **Moonshot Kimi K2.6** | Primary free LLM (via OpenRouter) |
-| **Nvidia Nemotron 3 Nano Omni** | Fallback free LLM (via OpenRouter) |
+| **Google Gemma 4 31B** | Primary free LLM (via OpenRouter) |
+| **Qwen3 Next 80B Instruct** | Fallback free LLM (via OpenRouter) |
 
 ### 🔌 Chrome Extension
 
@@ -242,8 +242,8 @@ pip install -r requirements.txt
 Create `backend/.env`:
 ```env
 OPENROUTER_API_KEY=your_openrouter_api_key_here
-OPENROUTER_MODEL=moonshotai/kimi-k2.6:free
-OPENROUTER_FALLBACK_MODEL=nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+OPENROUTER_MODEL=google/gemma-4-31b-it:free
+OPENROUTER_FALLBACK_MODEL=qwen/qwen3-next-80b-a3b-instruct:free
 DATABASE_URL=sqlite:///./toxiguard.db
 JWT_SECRET=your_secure_jwt_secret_here
 ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173

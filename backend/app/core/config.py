@@ -21,8 +21,8 @@ class Settings(BaseSettings):
 
     # ── LLM ─────────────────────────────────────────────────────────
     openrouter_api_key: str = ""
-    openrouter_model: str = "liquid/lfm-2.5-1.2b-thinking:free"
-    openrouter_fallback_model: str = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
+    openrouter_model: str = "google/gemma-4-31b-it:free"
+    openrouter_fallback_model: str = "qwen/qwen3-next-80b-a3b-instruct:free"
     llm_timeout: float = 20.0
     llm_cache_size: int = 128
     llm_temperature: float = 0.4
