@@ -14,13 +14,11 @@
 [![React 18](https://img.shields.io/badge/React-18.x-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-a78bfa?style=for-the-badge)](LICENSE)
 
----
 
 ### *Real-Time Content Shielding • 3-Layer Hybrid AI Architecture • Token Heatmap Explainability (XAI) • Continuous Drift Monitoring • Universal Chrome Extension*
 
 </div>
 
----
 
 ## 📌 Table of Contents
 
@@ -54,7 +52,6 @@
 - [✅ Final System Verification \& Audit Checklist](#-final-system-verification--audit-checklist)
 - [👨‍💻 Author \& License](#-author--license)
 
----
 
 ## 📖 Executive Summary & Problem Statement
 
@@ -69,7 +66,6 @@ Traditional moderation approaches fail at scale:
 
 **ToxiGuard AI** solves this trilemma with an **Enterprise-Grade Cascaded Architecture**. It merges **sub-millisecond Regex rule processing**, **20ms ML feature classification**, and **sub-second Large Language Model (LLM) contextual reasoning** into a single self-calibrating pipeline. Paired with a client-side **Chrome Extension**, a real-time **React SaaS Dashboard**, and **Explainable AI (XAI)** token heatmaps, ToxiGuard provides instant safety without compromising performance or privacy.
 
----
 
 ## 🎯 Core Philosophy & Architectural Principles
 
@@ -81,7 +77,6 @@ ToxiGuard AI is built around 5 fundamental design pillars:
 4. **Self-Correcting & Drift-Resilient**: Modern internet speech evolves rapidly. ToxiGuard includes continuous model drift tracking, confidence calibration, automated user feedback collection, and auto-retraining loops.
 5. **Universal Client-Side Enforcement**: Protect users anywhere on the open web through a Manifest V3 extension featuring feed mutation observers, shadow DOM injection, floating context selection buttons, and side-panel companion controls.
 
----
 
 ## 🧠 3-Layer Cascaded Hybrid AI Pipeline
 
@@ -145,7 +140,6 @@ The backbone of ToxiGuard AI is its 3-layer cascaded decision matrix. Text enter
                                                                                 [ Final JSON Response ]
 ```
 
----
 
 ## 💡 Deep-Dive Platform Features
 
@@ -189,7 +183,6 @@ The backbone of ToxiGuard AI is its 3-layer cascaded decision matrix. Text enter
   * **CSV/Text Batch File Uploader**: Drag-and-drop file processing for bulk dataset content moderation.
   * **Auth & API Key Management**: User signup/login issuing JWT tokens and persistent API keys for custom developer integrations.
 
----
 
 ## ⚙️ Technology Stack & "Why We Chose It"
 
@@ -229,7 +222,6 @@ The backbone of ToxiGuard AI is its 3-layer cascaded decision matrix. Text enter
 | **MutationObserver API** | DOM Monitoring | Asynchronously detects new social media feed posts without polling or degrading browser FPS. |
 | **Chrome SidePanel API** | Side Panel UI | Provides a clean, persistent side panel workspace within the user's browser workflow. |
 
----
 
 ## 🔄 End-to-End Execution Workflow & Data Lifecycle
 
@@ -274,7 +266,6 @@ To understand how a single piece of text moves through the ToxiGuard AI system, 
   • React Dashboard logs analytics entry in SQLite/PostgreSQL database.
 ```
 
----
 
 ## 🏗️ Complete Project Directory Structure
 
@@ -368,7 +359,6 @@ ToxiGuard-AI/
 └── README.md                       # Comprehensive project documentation
 ```
 
----
 
 ## 🔗 Comprehensive API Reference
 
@@ -392,7 +382,6 @@ curl -X POST https://toxiguard-ai-agent-1.onrender.com/auth/login \
   -d '{"email": "developer@company.com", "password": "SecurePassword123!"}'
 ```
 
----
 
 ### Moderation & Analysis Endpoints
 
@@ -438,7 +427,6 @@ curl -X POST https://toxiguard-ai-agent-1.onrender.com/predict/ml \
   -d '{"text": "Have a great day everyone!"}'
 ```
 
----
 
 ### Explainability, Stream & Monitoring Endpoints
 
@@ -483,7 +471,6 @@ curl -X POST https://toxiguard-ai-agent-1.onrender.com/stream \
   }'
 ```
 
----
 
 ## 🚀 Quick Start & Local Setup Guide
 
@@ -506,7 +493,6 @@ docker-compose up --build
 | **FastAPI Backend API** | `http://localhost:8000` |
 | **Interactive Swagger Docs** | `http://localhost:8000/docs` |
 
----
 
 ### Option 2: Local Backend Setup
 
@@ -545,7 +531,6 @@ python train_model.py
 uvicorn app.main:app --reload --port 8000
 ```
 
----
 
 ### Option 3: Local Frontend Setup
 
@@ -567,7 +552,6 @@ npm run dev
 ```
 Open `http://localhost:5173` in your browser.
 
----
 
 ### Option 4: Chrome Extension Load
 
@@ -580,7 +564,6 @@ Double-click `1-click-install.bat` in the project root folder. It automatically 
 3. Click **Load unpacked** and select the `extension/` folder.
 4. Click the ToxiGuard shield icon in your toolbar and enter your API key!
 
----
 
 ## 🔒 Security, Rate Limiting & Compliance
 
@@ -590,7 +573,6 @@ Double-click `1-click-install.bat` in the project root folder. It automatically 
 * **CORS Domain Whitelisting**: Strict origin controls prevent unauthorized cross-domain browser requests.
 * **Zero Prompt Training Guarantee**: OpenRouter LLM requests configured with `No prompt training` policies to guarantee user data privacy.
 
----
 
 ## ✅ Final System Verification & Audit Checklist
 
@@ -606,7 +588,6 @@ To verify that all components of the ToxiGuard AI ecosystem function properly:
 | **Extension**| Manifest V3 Shield & Selection | `ACTIVE` | Verified `<all_urls>` injection, FAB, & side panel |
 | **Docs** | Project Documentation | `COMPLETE` | Fully verified `README.md`, `system_design.md` & `walkthrough.md` |
 
----
 
 ## 👨‍💻 Author & License
 
