@@ -50,7 +50,7 @@ async function apiFetch(url, options = {}) {
   return res.json();
 }
 
-// Predict Toxicity
+// ─── Predict Toxicity ──────────────────────────────────────────────────────
 
 export async function predictText(text) {
   return apiFetch(`${BASE_URL}/predict`, {
@@ -59,7 +59,16 @@ export async function predictText(text) {
   });
 }
 
-// File Upload (Batch Analysis)
+// ─── XAI: Token Attribution ────────────────────────────────────────────────
+
+export async function explainText(text) {
+  return apiFetch(`${BASE_URL}/explain`, {
+    method: "POST",
+    body: JSON.stringify({ text }),
+  });
+}
+
+// ─── File Upload (Batch Analysis) ─────────────────────────────────────────
 
 export async function analyzeFile(file) {
   const formData = new FormData();
@@ -71,7 +80,36 @@ export async function analyzeFile(file) {
   });
 }
 
-// Auth APIs
+// ─── Active Learning Feedback ─────────────────────────────────────────────
+
+export async function submitFeedback({ inputText, predictedToxic, correctLabel, confidenceAtTime, notes }) {
+  return apiFetch(`${BASE_URL}/feedback`, {
+    method: "POST",
+    body: JSON.stringify({
+      input_text: inputText,
+      predicted_toxic: predictedToxic,
+      correct_label: correctLabel,
+      confidence_at_time: confidenceAtTime ?? null,
+      notes: notes ?? null,
+    }),
+  });
+}
+
+export async function getFeedbackStats() {
+  return apiFetch(`${BASE_URL}/feedback/stats`);
+}
+
+// ─── Monitoring ───────────────────────────────────────────────────────────
+
+export async function getMonitoringStats() {
+  return apiFetch(`${BASE_URL}/monitoring/stats`);
+}
+
+export async function getDriftSeries(limit = 100) {
+  return apiFetch(`${BASE_URL}/monitoring/drift?limit=${limit}`);
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────
 
 export async function loginUser(email, password) {
   const data = await fetch(`${BASE_URL}/auth/login`, {

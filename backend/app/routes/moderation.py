@@ -38,6 +38,8 @@ from utils.llm_guard import analyze_toxicity_llm
 
 from models import User
 from database import get_db
+from app.services.drift_monitor import drift_monitor
+from app.services.calibration import calibration_service
 
 # ──────────────────────────────────────────────────────────────────────────────
 # ROUTER
@@ -69,7 +71,15 @@ class TextRequest(BaseModel):
 # ──────────────────────────────────────────────────────────────────────────────
 
 def _generate_suggestions(words: list[str]) -> dict[str, str]:
-    return {w: abuse_suggestions.get(w.lower(), "Use respectful language.") for w in words}
+    result = {}
+    for w in words:
+        key = w.lower()
+        if key in abuse_suggestions:
+            result[w] = abuse_suggestions[key]
+        else:
+            # Word-specific fallback — more useful than a generic message
+            result[w] = f"Consider replacing '{w}' with a more neutral or constructive expression."
+    return result
 
 
 def _build_response(payload: dict) -> dict:
@@ -97,8 +107,10 @@ def _check_plan_limit(user: User, db: Session) -> None:
 # ML RESULT NORMALISATION
 # ──────────────────────────────────────────────────────────────────────────────
 
-def normalize_ml_result(ml_result: dict | None, threshold: float = 0.4) -> dict:
+def normalize_ml_result(ml_result: dict | None, threshold: float | None = None) -> dict:
     """Normalise raw ML output into a standard toxicity verdict."""
+    if threshold is None:
+        threshold = calibration_service.get_threshold()
     if not ml_result:
         return {
             "toxic": False,
@@ -213,11 +225,22 @@ def compute_ensemble_score(
         / total_weight
     )
 
-    # Hard override: critical rule always forces high confidence
+    # Hard overrides to prevent false negatives from dragging down strong signals:
+    # 1. Critical rule always forces high confidence
     if rules_triggered and rules_severity == "critical":
         weighted = max(weighted, 0.90)
 
-    is_toxic = weighted >= settings.ensemble_threshold
+    # 2. High rule severity always forces score above threshold
+    if rules_triggered and rules_severity == "high":
+        current_threshold = calibration_service.get_threshold()
+        weighted = max(weighted, current_threshold + 0.05)
+
+    # 3. High-confidence LLM classification (e.g. for multilingual/code-mixed inputs) always forces score above threshold
+    if llm_toxic and llm_confidence >= 0.75:
+        current_threshold = calibration_service.get_threshold()
+        weighted = max(weighted, current_threshold + 0.05)
+
+    is_toxic = weighted >= calibration_service.get_threshold()
     return is_toxic, round(weighted, 3)
 
 
@@ -236,6 +259,22 @@ def predict_demo(request: Request, req: TextRequest = Body(...)):
     text = req.text.strip()
     if not text:
         return {"error": "Empty input"}
+
+    from app.services.overrides import override_service
+    override = override_service.check_override(text)
+    if override is not None:
+        return {
+            "toxic": override,
+            "confidence": 1.0 if override else 0.0,
+            "severity": "high" if override else "low",
+            "category": "override" if override else "safe",
+            "detected_categories": ["override"] if override else [],
+            "abusive_words": [],
+            "source": "overrides",
+            "demo": True,
+            "llm_used": False,
+            "model_info": {"type": "dynamic_overrides", "ready": True},
+        }
 
     rule_text = preprocess_for_rules(text)
     model_text = preprocess_for_model(text)
@@ -327,6 +366,26 @@ def predict_ml_only(
     _check_plan_limit(user, db)
     logger.info(f"[/predict/ml] user={user.email} usage={user.usage_count}")
 
+    from app.services.overrides import override_service
+    override = override_service.check_override(text)
+    if override is not None:
+        return {
+            "user": user.email,
+            "toxic": override,
+            "confidence": 1.0 if override else 0.0,
+            "severity": "high" if override else "low",
+            "source": "overrides",
+            "reason": "Dynamic override applied based on feedback.",
+            "abusive_words": [],
+            "detected_categories": ["override"] if override else [],
+            "sentiment": None,
+            "ml": None,
+            "llm": None,
+            "rules": {"triggered": override, "severity": "high" if override else "low"},
+            "llm_used": False,
+            "model_info": {"type": "dynamic_overrides", "ready": True},
+        }
+
     rule_text = preprocess_for_rules(text)
     model_text = preprocess_for_model(text)
 
@@ -400,6 +459,27 @@ def predict(
 
     _check_plan_limit(user, db)
     logger.info(f"[/predict] user={user.email} usage={user.usage_count}")
+
+    from app.services.overrides import override_service
+    override = override_service.check_override(text)
+    if override is not None:
+        payload = {
+            "user": user.email,
+            "toxic": override,
+            "confidence": 1.0 if override else 0.0,
+            "severity": "high" if override else "low",
+            "source": "overrides",
+            "reason": "Dynamic override applied based on feedback.",
+            "abusive_words": [],
+            "detected_categories": ["override"] if override else [],
+            "sentiment": {"label": "negative" if override else "positive", "polarity": -1.0 if override else 1.0},
+            "ml": None,
+            "llm": None,
+            "rules": {"triggered": override, "severity": "high" if override else "low"},
+            "llm_used": False,
+            "model_info": {"type": "dynamic_overrides", "ready": True},
+        }
+        return _build_response(payload)
 
     # ── PREPROCESS ────────────────────────────────────────────────────────────
     rule_text = preprocess_for_rules(text)
@@ -504,6 +584,21 @@ def predict(
         "llm_used": llm_was_used,
         "model_info": model_service.status,
     }
+
+    # ── DRIFT MONITORING LOG ──────────────────────────────────────────────────
+    try:
+        drift_monitor.log_prediction(
+            db,
+            user_id=user.id,
+            input_text=text,
+            confidence=final_confidence,
+            toxic=toxic,
+            severity=severity,
+            source=source,
+        )
+    except Exception as _log_exc:
+        logger.warning(f"[/predict] Drift log failed (non-fatal): {_log_exc}")
+
     return _build_response(payload)
 
 

@@ -12,7 +12,7 @@ const MOCK_FEED_COMMENTS = [
 ];
 
 export default function LiveDemo() {
-  const [activeTab, setActiveTab] = useState("scanner"); // "scanner" | "playground" | "feed"
+  const [activeTab, setActiveTab] = useState("feed"); // "scanner" | "playground" | "feed"
   
   // Live Scanner States
   const [scannerMessages, setScannerMessages] = useState([
@@ -34,6 +34,23 @@ export default function LiveDemo() {
   const [comments, setComments] = useState(MOCK_FEED_COMMENTS);
   const [newCommentText, setNewCommentText] = useState("");
   const [revealedComments, setRevealedComments] = useState({});
+  const [currentTime, setCurrentTime] = useState("");
+
+  // Real-time status bar clock
+  useEffect(() => {
+    const updateClock = () => {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      setCurrentTime(`${hours}:${minutes} ${ampm}`);
+    };
+    updateClock();
+    const interval = setInterval(updateClock, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (scannerScrollRef.current) {
@@ -162,509 +179,288 @@ export default function LiveDemo() {
 
   return (
     <div className="live-demo-container">
-      {/* Demo Header / Tabs */}
-      <div className="demo-tabs-header">
-        <button
-          className={`demo-tab-btn ${activeTab === "scanner" ? "active" : ""}`}
-          onClick={() => setActiveTab("scanner")}
-        >
-          🛡️ Live Scanner
-        </button>
-        <button 
-          className={`demo-tab-btn ${activeTab === "playground" ? "active" : ""}`}
-          onClick={() => setActiveTab("playground")}
-        >
-          🔍 Playground
-        </button>
-        <button 
-          className={`demo-tab-btn ${activeTab === "feed" ? "active" : ""}`}
-          onClick={() => setActiveTab("feed")}
-        >
-          💬 Feed Sim
-        </button>
+      {/* Simulated Device Status Bar */}
+      <div className="simulated-status-bar">
+        <span className="sim-time">{currentTime || "9:41 AM"}</span>
+        <div className="sim-status-icons">
+          <span className="sim-icon">📶</span>
+          <span className="sim-icon">LTE</span>
+          <span className="sim-icon-battery">🔋</span>
+        </div>
       </div>
 
-      {/* LIVE SCANNER TAB (original widget) */}
-      {activeTab === "scanner" && (
-        <div className="scanner-tab-content animate-slide-up">
-          <div className="scanner-chat-box" ref={scannerScrollRef}>
-            {scannerMessages.map((msg, i) => (
-              <div key={i} className={`scanner-msg-wrapper ${msg.scanning ? "scanning" : ""}`}>
-                <div className="scanner-msg-bubble">{msg.text}</div>
-                {!msg.scanning && (
-                  <div className={`scanner-result-badge ${msg.toxic ? "toxic" : "safe"}`}>
-                    <span>{msg.toxic ? "🛡️ Blocked" : "✅ Safe"}</span>
-                    <span>{msg.conf}% Conf</span>
-                  </div>
-                )}
-                {msg.scanning && (
-                  <div className="scanner-scanning-badge">
-                    <span className="scan-spinner"></span> Scanning...
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="scanner-input-area">
-            <input
-              type="text"
-              placeholder="Type a message (try 'idiot' or 'stupid')..."
-              value={scannerInput}
-              onChange={(e) => setScannerInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleScannerSend()}
-              disabled={isScannerScanning}
-            />
-            <button onClick={handleScannerSend} disabled={isScannerScanning || !scannerInput.trim()}>
-              Scan
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Premium App Header Bar */}
+      <div className="app-header-bar">
+        <span className="app-back-btn">‹</span>
+        <span className="app-header-title">ToxiGuard Social Feed</span>
+        <span className="app-menu-dots">•••</span>
+      </div>
 
-      {/* API PLAYGROUND TAB */}
-      {activeTab === "playground" && (
-        <div className="playground-tab-content">
-          <div className="playground-input-row">
+      {/* SOCIAL FEED SIMULATOR */}
+      <div className="feed-tab-content">
+        {/* Extension Status Switcher */}
+        <div className="extension-banner glassmorphism">
+          <div className="extension-status">
+            <span className={`status-dot ${extensionActive ? "active" : ""}`} />
+            <div>
+              <h4>ToxiGuard Shield</h4>
+              <p>{extensionActive ? "Auto-moderating comments" : "Disabled (raw feed shown)"}</p>
+            </div>
+          </div>
+          <label className="switch">
             <input 
-              type="text" 
-              placeholder="Type a test message (try using 'idiot' or 'kill')..." 
-              value={playgroundInput}
-              onChange={(e) => setPlaygroundInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleScan()}
-              disabled={isScanning}
+              type="checkbox" 
+              checked={extensionActive} 
+              onChange={() => setExtensionActive(!extensionActive)}
             />
-            <button className="scan-btn" onClick={handleScan} disabled={isScanning || !playgroundInput.trim()}>
-              {isScanning ? "Scanning..." : "Scan"}
-            </button>
-          </div>
-
-          {isScanning && (
-            <div className="playground-scanning">
-              <span className="scan-spinner"></span> Analyzing payload across 3 Pipeline Layers...
-            </div>
-          )}
-
-          {playgroundResult && (
-            <div className="playground-results-container animate-slide-up">
-              {/* Verdict Header */}
-              <div className={`playground-verdict ${playgroundResult.type === "safe" ? "verdict-safe" : "verdict-toxic"}`}>
-                <span className="verdict-icon">{playgroundResult.type === "safe" ? "✅" : "🛡️"}</span>
-                <div>
-                  <h4>Verdict: {playgroundResult.type === "safe" ? "SAFE" : playgroundResult.type.toUpperCase()}</h4>
-                  <p>{playgroundResult.confidence}% confidence scoring</p>
-                </div>
-              </div>
-
-              {/* Toxicity Breakdown Bars */}
-              <div className="breakdown-section">
-                <h5>Toxicity Categories</h5>
-                <div className="category-grid">
-                  {[
-                    { key: "obscenity", label: "Obscenity", color: "var(--accent-cyan)" },
-                    { key: "insult", label: "Insult", color: "var(--accent-violet)" },
-                    { key: "threat", label: "Threat", color: "var(--accent-rose)" },
-                    { key: "identity", label: "Identity Attack", color: "var(--accent-indigo)" }
-                  ].map(cat => (
-                    <div key={cat.key} className="cat-bar-row">
-                      <div className="cat-label">
-                        <span>{cat.label}</span>
-                        <span>{playgroundResult.breakdown[cat.key]}%</span>
-                      </div>
-                      <div className="cat-bar-track">
-                        <div 
-                          className="cat-bar-fill" 
-                          style={{ 
-                            width: `${playgroundResult.breakdown[cat.key]}%`,
-                            backgroundColor: cat.color,
-                            boxShadow: `0 0 10px ${cat.color}`
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Persona Switcher Section */}
-              <div className="persona-section">
-                <div className="persona-header">
-                  <h5>Explainable AI Explanation</h5>
-                  <div className="persona-switcher">
-                    {["simple", "compliance", "developer"].map(p => (
-                      <button 
-                        key={p} 
-                        className={`persona-btn ${persona === p ? "active" : ""}`}
-                        onClick={() => setPersona(p)}
-                      >
-                        {p.charAt(0).toUpperCase() + p.slice(1)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="explanation-bubble">
-                  {playgroundResult.explanations[persona]}
-                </div>
-              </div>
-            </div>
-          )}
+            <span className="slider round"></span>
+          </label>
         </div>
-      )}
 
-      {/* SOCIAL FEED SIMULATOR TAB */}
-      {activeTab === "feed" && (
-        <div className="feed-tab-content animate-slide-up">
-          {/* Extension Status Switcher */}
-          <div className="extension-banner glassmorphism">
-            <div className="extension-status">
-              <span className={`status-dot ${extensionActive ? "active" : ""}`} />
-              <div>
-                <h4>ToxiGuard Chrome Extension</h4>
-                <p>{extensionActive ? "Active & filtering comments in DOM" : "Inactive (Showing raw feed comments)"}</p>
-              </div>
-            </div>
-            <label className="switch">
-              <input 
-                type="checkbox" 
-                checked={extensionActive} 
-                onChange={() => setExtensionActive(!extensionActive)}
-              />
-              <span className="slider round"></span>
-            </label>
-          </div>
-
-          {/* Social Post Mock */}
-          <div className="mock-feed-post">
-            <div className="post-header">
-              <div className="post-avatar">◆</div>
-              <div>
+        {/* Social Post Mock */}
+        <div className="mock-feed-post">
+          <div className="post-header">
+            <div className="post-avatar">◆</div>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                 <h5>ToxiGuard AI</h5>
-                <p>@toxiguard_ai · Sponsored</p>
+                <span className="verified-badge">✓</span>
               </div>
+              <p>@toxiguard_ai · Sponsored</p>
             </div>
-            <p className="post-content">
-              Introducing our DeBERTa-v3 model package on ONNX Runtime. Moderate content natively at the edge with sub-10ms latencies. Check out our open release.
-            </p>
           </div>
+          <p className="post-content">
+            Introducing our DeBERTa-v3 model package on ONNX Runtime. Moderate content natively at the edge with sub-10ms latencies. Check out our open release.
+          </p>
 
-          {/* Comments List */}
-          <div className="feed-comments-list">
-            {comments.map(comment => {
-              const isMasked = extensionActive && comment.toxic && !revealedComments[comment.id];
-              return (
-                <div key={comment.id} className="feed-comment">
-                  <span className="comment-avatar">{comment.avatar}</span>
-                  <div className="comment-body">
-                    <div className="comment-author">
-                      <h6>{comment.user}</h6>
-                      {comment.toxic && (
-                        <span className={`comment-flag ${comment.category.toLowerCase().replace(" ", "-")}`}>
-                          {comment.category}
-                        </span>
-                      )}
-                    </div>
-                    
-                    {isMasked ? (
-                      <div className="masked-comment-overlay">
-                        <span className="masked-text">🛡️ Comment flagged and hidden by ToxiGuard</span>
-                        <button className="reveal-btn" onClick={() => toggleRevealComment(comment.id)}>
-                          Reveal
-                        </button>
-                      </div>
-                    ) : (
-                      <p className="comment-text">
-                        {comment.text}
-                        {extensionActive && comment.toxic && revealedComments[comment.id] && (
-                          <button className="hide-btn" onClick={() => toggleRevealComment(comment.id)}>
-                            Hide
-                          </button>
-                        )}
-                      </p>
+          {/* Post Interaction Bar */}
+          <div className="post-interaction-bar">
+            <span className="interaction-item">❤️ 1,248</span>
+            <span className="interaction-item">💬 {comments.length}</span>
+            <span className="interaction-item">🔁 314</span>
+            <span className="interaction-item">✉️</span>
+          </div>
+        </div>
+
+        {/* Comments List */}
+        <div className="feed-comments-list">
+          {comments.map(comment => {
+            const isMasked = extensionActive && comment.toxic && !revealedComments[comment.id];
+            return (
+              <div key={comment.id} className="feed-comment">
+                <span className="comment-avatar">{comment.avatar}</span>
+                <div className="comment-body">
+                  <div className="comment-author">
+                    <h6>{comment.user}</h6>
+                    {comment.toxic && (
+                      <span className={`comment-flag ${comment.category.toLowerCase().replace(" ", "-")}`}>
+                        {comment.category}
+                      </span>
                     )}
                   </div>
+                  
+                  {isMasked ? (
+                    <div className="masked-comment-overlay">
+                      <span className="masked-text">🛡️ Hidden by ToxiGuard AI</span>
+                      <button className="reveal-btn" onClick={() => toggleRevealComment(comment.id)}>
+                        Reveal
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="comment-text">
+                      {comment.text}
+                      {extensionActive && comment.toxic && revealedComments[comment.id] && (
+                        <button className="hide-btn" onClick={() => toggleRevealComment(comment.id)}>
+                          Hide
+                        </button>
+                      )}
+                    </p>
+                  )}
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Add Mock Comment */}
-          <form onSubmit={handleAddComment} className="feed-input-row">
-            <input 
-              type="text" 
-              placeholder="Add to the conversation (try 'idiot' to see it auto-moderate)..."
-              value={newCommentText}
-              onChange={(e) => setNewCommentText(e.target.value)}
-            />
-            <button type="submit" disabled={!newCommentText.trim()}>Post</button>
-          </form>
+              </div>
+            );
+          })}
         </div>
-      )}
+
+        {/* Add Mock Comment */}
+        <form onSubmit={handleAddComment} className="feed-input-row">
+          <input 
+            type="text" 
+            placeholder="Type comment (try 'idiot' or 'stupid')..."
+            value={newCommentText}
+            onChange={(e) => setNewCommentText(e.target.value)}
+          />
+          <button type="submit" disabled={!newCommentText.trim()}>Send</button>
+        </form>
+      </div>
+
+      {/* Simulated App Bottom Navigation Tab Bar */}
+      <div className="app-bottom-nav-bar">
+        <span className="nav-item active">🏠</span>
+        <span className="nav-item">🔍</span>
+        <span className="nav-item plus-btn">+</span>
+        <span className="nav-item">🔔</span>
+        <span className="nav-item">👤</span>
+      </div>
 
       <style>{`
         .live-demo-container {
-          background: rgba(15, 23, 42, 0.45);
-          border: 1px solid var(--surface-glass-border);
-          border-radius: var(--radius-xl);
+          background: #07070d;
           width: 100%;
-          max-width: 540px;
+          height: 100%;
           overflow: hidden;
-          box-shadow: var(--shadow-lg);
-          backdrop-filter: blur(24px) saturate(140%);
-          -webkit-backdrop-filter: blur(24px) saturate(140%);
           position: relative;
           z-index: 10;
-        }
-
-        /* Tabs Header */
-        .demo-tabs-header {
-          display: flex;
-          background: rgba(0, 0, 0, 0.35);
-          border-bottom: 1px solid var(--surface-glass-border);
-        }
-
-        .demo-tab-btn {
-          flex: 1;
-          background: transparent;
-          border: none;
-          padding: 16px;
-          font-family: var(--font-heading);
-          font-size: 0.9rem;
-          font-weight: 700;
-          color: var(--text-tertiary);
-          cursor: pointer;
-          transition: all 0.25s ease;
-          position: relative;
-        }
-
-        .demo-tab-btn:hover {
-          color: var(--text-secondary);
-          background: rgba(255, 255, 255, 0.02);
-        }
-
-        .demo-tab-btn.active {
-          color: #38bdf8;
-          background: rgba(56, 189, 248, 0.05);
-        }
-
-        .demo-tab-btn.active::after {
-          content: "";
-          position: absolute;
-          bottom: -1px;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: linear-gradient(90deg, #38bdf8, #6366f1);
-        }
-
-        /* Playground styles */
-        .playground-tab-content, .feed-tab-content {
-          padding: 24px;
+          font-family: var(--font-body);
           display: flex;
           flex-direction: column;
-          gap: 20px;
         }
 
-        .playground-input-row {
+        /* Simulated Status Bar */
+        .simulated-status-bar {
           display: flex;
-          gap: 12px;
-        }
-
-        .playground-input-row input {
-          flex: 1;
-          background: rgba(0, 0, 0, 0.25);
-          border: 1px solid var(--surface-glass-border);
-          border-radius: var(--radius-md);
-          padding: 12px 18px;
-          color: #ffffff;
-          font-family: var(--font-body);
-          font-size: 0.9rem;
-          transition: all 0.2s;
-        }
-
-        .playground-input-row input:focus {
-          outline: none;
-          border-color: rgba(56, 189, 248, 0.5);
-          box-shadow: 0 0 12px rgba(56, 189, 248, 0.15);
-        }
-
-        .scan-btn {
-          background: linear-gradient(135deg, #38bdf8, #6366f1);
-          color: #ffffff;
-          border: none;
-          padding: 0 24px;
-          border-radius: var(--radius-md);
-          font-family: var(--font-heading);
+          justify-content: space-between;
+          align-items: center;
+          background: #0b0b14;
+          padding: 8px 24px 2px 24px;
+          font-size: 0.68rem;
+          color: #a5b4fc;
           font-weight: 700;
+          letter-spacing: 0.5px;
+          user-select: none;
+        }
+        .sim-status-icons {
+          display: flex;
+          gap: 6px;
+          align-items: center;
+        }
+        .sim-icon {
+          font-size: 0.65rem;
+        }
+
+        /* Verified Badge */
+        .verified-badge {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 12px;
+          height: 12px;
+          background: #38bdf8;
+          color: #000000;
+          font-size: 0.55rem;
+          font-weight: 900;
+          border-radius: 50%;
+          line-height: 1;
+        }
+
+        /* Post Interaction Bar */
+        .post-interaction-bar {
+          display: flex;
+          gap: 16px;
+          margin-top: 10px;
+          padding-top: 8px;
+          border-top: 1px solid rgba(255, 255, 255, 0.04);
+          color: #818cf8;
+          font-size: 0.72rem;
+          font-weight: 700;
+        }
+        .interaction-item {
+          display: flex;
+          align-items: center;
+          gap: 4px;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: color 0.2s;
+        }
+        .interaction-item:hover {
+          color: #a5b4fc;
         }
 
-        .scan-btn:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(56, 189, 248, 0.4);
+        /* Bottom Tab Bar */
+        .app-bottom-nav-bar {
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
+          background: #0b0b14;
+          padding: 10px 0;
+          border-top: 1px solid rgba(99, 102, 241, 0.15);
+          user-select: none;
         }
-
-        .scan-btn:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
+        .nav-item {
+          font-size: 1.1rem;
+          color: #52525b;
+          cursor: pointer;
+          transition: color 0.2s;
         }
-
-        .playground-scanning {
+        .nav-item.active {
+          color: #a5b4fc;
+          text-shadow: 0 0 8px rgba(165, 180, 252, 0.4);
+        }
+        .nav-item.plus-btn {
+          font-size: 1.3rem;
+          color: #ffffff;
+          background: linear-gradient(135deg, #6366f1, #06b6d4);
+          width: 32px;
+          height: 32px;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 10px;
-          font-size: 0.85rem;
-          color: var(--text-tertiary);
-          padding: 12px;
-          background: rgba(0, 0, 0, 0.15);
-          border-radius: var(--radius-md);
-        }
-
-        .scan-spinner {
-          width: 16px;
-          height: 16px;
-          border: 2px solid rgba(255, 255, 255, 0.1);
-          border-top-color: #38bdf8;
           border-radius: 50%;
-          animation: spin 1s linear infinite;
+          box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
         }
 
-        /* Results Card */
-        .playground-results-container {
+        /* App Header Bar */
+        .app-header-bar {
           display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .playground-verdict {
-          display: flex;
+          justify-content: space-between;
           align-items: center;
-          gap: 16px;
-          padding: 16px;
-          border-radius: var(--radius-md);
-          border: 1px solid var(--surface-glass-border);
+          background: #0b0b14;
+          padding: 8px 16px 12px;
+          border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+          user-select: none;
         }
 
-        .verdict-safe {
-          background: rgba(16, 185, 129, 0.1);
-          border-color: rgba(16, 185, 129, 0.2);
+        .app-back-btn {
+          font-size: 1.6rem;
+          color: #a5b4fc;
+          cursor: pointer;
+          line-height: 1;
         }
 
-        .verdict-safe h4 { color: #34d399; }
-
-        .verdict-toxic {
-          background: rgba(244, 63, 94, 0.1);
-          border-color: rgba(244, 63, 94, 0.2);
-          animation: glowPulse 2s infinite alternate;
-        }
-
-        .verdict-toxic h4 { color: #f43f5e; }
-
-        .verdict-icon {
-          font-size: 1.8rem;
-        }
-
-        .playground-verdict h4 {
-          margin: 0;
-          font-size: 1.1rem;
+        .app-header-title {
+          font-family: var(--font-heading);
+          font-size: 0.85rem;
           font-weight: 800;
+          color: #ffffff;
           letter-spacing: 0.5px;
         }
 
-        .playground-verdict p {
-          margin: 4px 0 0;
-          font-size: 0.8rem;
-          color: var(--text-tertiary);
-        }
-
-        /* Category Breakdown */
-        .breakdown-section h5, .persona-section h5 {
-          margin: 0 0 12px;
-          font-size: 0.85rem;
-          text-transform: uppercase;
+        .app-menu-dots {
+          font-size: 0.6rem;
+          color: #6366f1;
           letter-spacing: 1px;
-          color: var(--text-tertiary);
+          cursor: pointer;
         }
 
-        .category-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 12px;
-        }
-
-        .cat-bar-row {
+        /* Feed Content Container – scrollable so banner/post slide out of view */
+        .feed-tab-content {
+          padding: 14px;
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 14px;
+          flex: 1;
+          overflow-y: auto;
+          scroll-behavior: smooth;
         }
 
-        .cat-label {
-          display: flex;
-          justify-content: space-between;
-          font-size: 0.75rem;
-          font-weight: 600;
-          color: var(--text-secondary);
+        .feed-tab-content::-webkit-scrollbar {
+          width: 3px;
         }
-
-        .cat-bar-track {
-          height: 6px;
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 3px;
-          overflow: hidden;
-        }
-
-        .cat-bar-fill {
-          height: 100%;
-          border-radius: 3px;
-          transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        /* Persona Switcher */
-        .persona-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 12px;
-        }
-
-        .persona-header h5 {
-          margin: 0;
-        }
-
-        .persona-switcher {
-          display: flex;
-          background: rgba(0, 0, 0, 0.2);
-          padding: 3px;
-          border-radius: 6px;
-          border: 1px solid var(--surface-glass-border);
-        }
-
-        .persona-btn {
+        .feed-tab-content::-webkit-scrollbar-track {
           background: transparent;
-          border: none;
-          padding: 4px 10px;
-          font-size: 0.75rem;
-          font-weight: 700;
-          color: var(--text-tertiary);
-          cursor: pointer;
-          border-radius: 4px;
-          transition: all 0.2s;
         }
-
-        .persona-btn.active {
-          background: rgba(255, 255, 255, 0.08);
-          color: #ffffff;
-        }
-
-        .explanation-bubble {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid var(--surface-glass-border);
-          border-radius: var(--radius-md);
-          padding: 16px;
-          font-size: 0.9rem;
-          line-height: 1.6;
-          color: var(--text-secondary);
-          min-height: 70px;
+        .feed-tab-content::-webkit-scrollbar-thumb {
+          background: rgba(165, 180, 252, 0.2);
+          border-radius: 2px;
         }
 
         /* Extension Switch Banner */
@@ -672,50 +468,52 @@ export default function LiveDemo() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 16px;
-          background: rgba(56, 189, 248, 0.05);
-          border-radius: var(--radius-md);
-          border: 1px solid rgba(56, 189, 248, 0.15);
+          padding: 12px 14px;
+          background: rgba(13, 13, 26, 0.75);
+          border-radius: 12px;
+          border: 1px solid rgba(99, 102, 241, 0.22);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .extension-status {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 10px;
         }
 
         .status-dot {
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background: var(--text-tertiary);
-          position: relative;
+          background: #ef4444;
+          box-shadow: 0 0 8px #ef4444;
+          transition: all 0.3s ease;
         }
 
         .status-dot.active {
-          background: #34d399;
-          box-shadow: 0 0 8px #34d399;
+          background: #10b981;
+          box-shadow: 0 0 10px #10b981;
         }
 
         .extension-status h4 {
           margin: 0;
-          font-size: 0.9rem;
+          font-size: 0.8rem;
           font-weight: 800;
-          color: var(--text-primary);
+          color: #ffffff;
         }
 
         .extension-status p {
           margin: 2px 0 0;
-          font-size: 0.75rem;
-          color: var(--text-tertiary);
+          font-size: 0.68rem;
+          color: #818cf8;
         }
 
         /* Toggle Switch */
         .switch {
           position: relative;
           display: inline-block;
-          width: 44px;
-          height: 24px;
+          width: 38px;
+          height: 20px;
         }
 
         .switch input {
@@ -728,98 +526,97 @@ export default function LiveDemo() {
           position: absolute;
           cursor: pointer;
           inset: 0;
-          background-color: rgba(255, 255, 255, 0.1);
+          background-color: rgba(255, 255, 255, 0.08);
           transition: .4s;
           border-radius: 34px;
-          border: 1px solid var(--surface-glass-border);
+          border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .slider:before {
           position: absolute;
           content: "";
-          height: 16px;
-          width: 16px;
-          left: 3px;
-          bottom: 3px;
+          height: 14px;
+          width: 14px;
+          left: 2px;
+          bottom: 2px;
           background-color: white;
           transition: .4s;
           border-radius: 50%;
         }
 
         input:checked + .slider {
-          background-color: #38bdf8;
+          background-color: #6366f1;
         }
 
         input:checked + .slider:before {
-          transform: translateX(20px);
+          transform: translateX(18px);
         }
 
         /* Mock Post */
         .mock-feed-post {
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid var(--surface-glass-border);
-          border-radius: var(--radius-md);
-          padding: 16px;
+          background: #0b0b14;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 12px;
+          padding: 12px;
+          box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
         }
 
         .post-header {
           display: flex;
           align-items: center;
           gap: 10px;
-          margin-bottom: 10px;
+          margin-bottom: 8px;
         }
 
         .post-avatar {
-          width: 32px;
-          height: 32px;
+          width: 28px;
+          height: 28px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #38bdf8, #6366f1);
+          background: linear-gradient(135deg, #6366f1, #06b6d4);
           color: white;
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: bold;
+          font-size: 0.8rem;
         }
 
         .post-header h5 {
           margin: 0;
-          font-size: 0.9rem;
+          font-size: 0.8rem;
           font-weight: 800;
+          color: #ffffff;
         }
 
         .post-header p {
           margin: 0;
-          font-size: 0.75rem;
-          color: var(--text-tertiary);
+          font-size: 0.68rem;
+          color: #71717a;
         }
 
         .post-content {
           margin: 0;
-          font-size: 0.9rem;
-          line-height: 1.6;
-          color: var(--text-secondary);
+          font-size: 0.8rem;
+          line-height: 1.5;
+          color: #d4d4d8;
         }
 
-        /* Comments List */
         .feed-comments-list {
           display: flex;
           flex-direction: column;
-          gap: 14px;
-          max-height: 240px;
-          overflow-y: auto;
-          padding-right: 4px;
+          gap: 10px;
         }
 
         .feed-comment {
           display: flex;
-          gap: 10px;
+          gap: 8px;
           align-items: flex-start;
         }
 
         .comment-avatar {
-          font-size: 1.2rem;
-          width: 28px;
-          height: 28px;
+          font-size: 1.1rem;
+          width: 26px;
+          height: 26px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -829,11 +626,15 @@ export default function LiveDemo() {
 
         .comment-body {
           flex: 1;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid var(--surface-glass-border);
+          /* Raised Neomorphic Bubble on Dark Screen */
+          background: linear-gradient(145deg, #111122, #0a0a16);
+          border: 1px solid rgba(255, 255, 255, 0.04);
           border-radius: 12px;
-          padding: 10px 14px;
+          padding: 8px 12px;
           position: relative;
+          box-shadow:
+            3px 3px 8px rgba(0,0,0,0.6),
+            inset 1px 1px 0 rgba(255,255,255,0.02);
         }
 
         .comment-author {
@@ -845,262 +646,147 @@ export default function LiveDemo() {
 
         .comment-author h6 {
           margin: 0;
-          font-size: 0.85rem;
-          font-weight: 700;
-          color: var(--text-primary);
+          font-size: 0.75rem;
+          font-weight: 800;
+          color: #ffffff;
         }
 
         .comment-flag {
-          font-size: 0.65rem;
+          font-size: 0.58rem;
           font-weight: 800;
-          padding: 2px 6px;
+          padding: 1px 5px;
           border-radius: 4px;
           text-transform: uppercase;
+          letter-spacing: 0.3px;
         }
 
         .comment-flag.insult {
-          background: rgba(139, 92, 246, 0.15);
-          color: var(--accent-violet);
+          background: rgba(6, 182, 212, 0.12);
+          color: #22d3ee;
+          border: 1px solid rgba(6, 182, 212, 0.25);
         }
 
         .comment-flag.threat {
-          background: rgba(244, 63, 94, 0.15);
-          color: var(--accent-rose);
+          background: rgba(244, 63, 94, 0.12);
+          color: #f43f5e;
+          border: 1px solid rgba(244, 63, 94, 0.25);
         }
 
         .comment-flag.hate-speech {
-          background: rgba(99, 102, 241, 0.15);
-          color: var(--accent-indigo);
+          background: rgba(139, 92, 246, 0.12);
+          color: #a78bfa;
+          border: 1px solid rgba(139, 92, 246, 0.25);
         }
 
         .comment-text {
           margin: 0;
-          font-size: 0.85rem;
-          line-height: 1.5;
-          color: var(--text-secondary);
+          font-size: 0.78rem;
+          line-height: 1.4;
+          color: #a1a1aa;
         }
 
+        /* Masked overlay */
         .masked-comment-overlay {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 10px;
+          gap: 8px;
+          background: rgba(239, 68, 68, 0.05);
+          border: 1px solid rgba(239, 68, 68, 0.18);
+          border-radius: 6px;
+          padding: 4px 8px;
         }
 
         .masked-text {
-          font-size: 0.8rem;
-          color: var(--text-tertiary);
+          font-size: 0.72rem;
+          color: #f87171;
           font-style: italic;
-          font-weight: 500;
+          font-weight: 600;
         }
 
         .reveal-btn, .hide-btn {
-          background: rgba(255,255,255,0.06);
-          border: 1px solid var(--surface-glass-border);
-          color: var(--text-primary);
-          padding: 2px 8px;
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: #ffffff;
+          padding: 2px 6px;
           border-radius: 4px;
-          font-size: 0.75rem;
-          font-weight: 600;
+          font-size: 0.65rem;
+          font-weight: 700;
           cursor: pointer;
           transition: background 0.2s;
         }
 
         .reveal-btn:hover, .hide-btn:hover {
-          background: rgba(255,255,255,0.12);
+          background: rgba(255, 255, 255, 0.12);
         }
 
         .hide-btn {
-          margin-left: 10px;
+          margin-left: 6px;
         }
 
+        /* Comment Input row – sticky at bottom of scroll area */
         .feed-input-row {
           display: flex;
-          gap: 10px;
+          gap: 8px;
+          position: sticky;
+          bottom: 0;
+          background: #07070d;
+          padding: 10px 0 4px;
+          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          z-index: 10;
+          margin-top: auto;
         }
 
         .feed-input-row input {
           flex: 1;
-          background: rgba(0, 0, 0, 0.2);
-          border: 1px solid var(--surface-glass-border);
-          border-radius: var(--radius-md);
-          padding: 10px 14px;
+          background: #040408;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 999px;
+          padding: 8px 14px;
           color: white;
-          font-size: 0.85rem;
+          font-size: 0.75rem;
+          /* Recessed Neomorphic Input on Dark Surface */
+          box-shadow:
+            inset 2px 2px 6px rgba(0,0,0,0.85),
+            inset -1px -1px 3px rgba(255,255,255,0.02);
         }
 
         .feed-input-row input:focus {
           outline: none;
-          border-color: rgba(56, 189, 248, 0.4);
+          border-color: rgba(99, 102, 241, 0.4);
         }
 
         .feed-input-row button {
-          background: #ffffff;
-          color: #000;
+          background: linear-gradient(145deg, #ffffff, #d4d4d8);
+          color: #09090b;
           border: none;
-          padding: 0 16px;
-          border-radius: var(--radius-md);
+          padding: 0 14px;
+          border-radius: 999px;
           font-family: var(--font-heading);
-          font-weight: 700;
-          font-size: 0.85rem;
+          font-weight: 800;
+          font-size: 0.75rem;
           cursor: pointer;
           transition: all 0.2s;
+          box-shadow:
+            3px 3px 8px rgba(0,0,0,0.5),
+            inset 0 1px 0 rgba(255,255,255,0.9);
         }
 
         .feed-input-row button:hover:not(:disabled) {
           transform: translateY(-1px);
+          box-shadow:
+            4px 5px 12px rgba(0,0,0,0.6),
+            inset 0 1px 0 rgba(255,255,255,0.9);
+        }
+
+        .feed-input-row button:active:not(:disabled) {
+          transform: translateY(1px);
+          box-shadow:
+            inset 2px 2px 5px rgba(0,0,0,0.3);
         }
 
         @keyframes spin {
           to { transform: rotate(360deg); }
-        }
-
-        @keyframes glowPulse {
-          0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.2); }
-          100% { box-shadow: 0 0 12px rgba(244, 63, 94, 0.4); }
-        }
-
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-slide-up {
-          animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        /* ===== LIVE SCANNER TAB ===== */
-        .scanner-tab-content {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .scanner-chat-box {
-          height: 300px;
-          padding: 20px;
-          overflow-y: auto;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .scanner-chat-box::-webkit-scrollbar {
-          width: 4px;
-        }
-        .scanner-chat-box::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .scanner-chat-box::-webkit-scrollbar-thumb {
-          background: rgba(255,255,255,0.1);
-          border-radius: 2px;
-        }
-
-        .scanner-msg-wrapper {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .scanner-msg-bubble {
-          background: rgba(255, 255, 255, 0.08);
-          color: #ffffff;
-          padding: 12px 18px;
-          border-radius: 18px;
-          border-bottom-right-radius: 4px;
-          font-size: 0.9rem;
-          max-width: 90%;
-          line-height: 1.5;
-          border: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .scanner-result-badge {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-top: 6px;
-          padding: 4px 12px;
-          border-radius: 999px;
-          font-size: 0.75rem;
-          font-weight: 700;
-          letter-spacing: 0.3px;
-        }
-
-        .scanner-result-badge.safe {
-          background: rgba(16, 185, 129, 0.1);
-          color: #4ade80;
-          border: 1px solid rgba(34, 197, 94, 0.2);
-        }
-
-        .scanner-result-badge.toxic {
-          background: rgba(239, 68, 68, 0.1);
-          color: #f87171;
-          border: 1px solid rgba(239, 68, 68, 0.2);
-          animation: glowPulse 2s infinite;
-        }
-
-        .scanner-scanning-badge {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-top: 6px;
-          font-size: 0.75rem;
-          color: var(--text-tertiary);
-          font-weight: 600;
-        }
-
-        .scanner-input-area {
-          padding: 16px;
-          background: rgba(0, 0, 0, 0.3);
-          border-top: 1px solid var(--surface-glass-border);
-          display: flex;
-          gap: 10px;
-        }
-
-        .scanner-input-area input {
-          flex: 1;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 999px;
-          padding: 12px 20px;
-          color: #ffffff;
-          font-family: var(--font-body);
-          font-size: 0.85rem;
-          transition: all 0.2s;
-        }
-
-        .scanner-input-area input:focus {
-          outline: none;
-          background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(99, 102, 241, 0.5);
-        }
-
-        .scanner-input-area input::placeholder {
-          color: rgba(255, 255, 255, 0.3);
-        }
-
-        .scanner-input-area button {
-          background: #ffffff;
-          color: #000;
-          border: none;
-          padding: 0 24px;
-          border-radius: 999px;
-          font-family: var(--font-heading);
-          font-weight: 700;
-          font-size: 0.9rem;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .scanner-input-area button:hover:not(:disabled) {
-          background: #f0f0f0;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(255,255,255,0.2);
-        }
-
-        .scanner-input-area button:disabled {
-          opacity: 0.4;
-          cursor: not-allowed;
         }
       `}</style>
     </div>

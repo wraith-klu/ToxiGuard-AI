@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "../components/Toast";
 import ParticleBackground from "../components/ParticleBackground";
-import "./Login.css";
+import "./Signup.css";
 
 const API = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8000";
 
@@ -40,6 +40,7 @@ export default function Signup() {
 
       if (res.ok && data.api_key) {
         localStorage.setItem("api_key", data.api_key);
+        localStorage.setItem("user_email", email);
         toast.success("Account created! Welcome to ToxiGuard.");
         navigate("/dashboard");
       } else {

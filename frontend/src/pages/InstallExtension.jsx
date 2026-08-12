@@ -16,7 +16,7 @@ export default function InstallExtension() {
     { n: "6", text: <>Click the <strong>Load Unpacked</strong> button in the top-left corner.</> },
     { n: "7", text: "Select the folder where you extracted the extension ZIP file." },
   ];
-
+  
   const usageSteps = [
     { n: "1", text: "Click the ToxiGuard icon in your Chrome toolbar to open the control panel." },
     { n: "2", text: "Log in with your email or use the public guest demo mode directly." },

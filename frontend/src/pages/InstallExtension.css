@@ -4,8 +4,8 @@
 
 .install-page {
   min-height: 100vh;
-  background: #f8fafc; /* Global light slate background for sections */
-  color: #0f172a;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-family: var(--font-body);
   display: flex;
   flex-direction: column;
@@ -42,8 +42,8 @@
   bottom: 0;
   background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
   background-size: 24px 24px;
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
-  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%);
   pointer-events: none;
 }
 
@@ -107,14 +107,19 @@
   font-weight: 700;
   font-size: 1rem;
   text-decoration: none;
+  box-shadow: var(--neo-btn-shadow), 0 10px 30px rgba(99, 102, 241, 0.2);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
 }
 
 .install-download-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 15px 40px rgba(6, 182, 212, 0.45);
+  box-shadow: var(--neo-btn-shadow-hover), 0 15px 40px rgba(6, 182, 212, 0.35);
   color: #ffffff;
+}
+
+.install-download-btn:active {
+  transform: translateY(0);
+  box-shadow: var(--neo-inset);
 }
 
 .install-download-btn span {
@@ -157,13 +162,13 @@
   font-family: var(--font-heading);
   font-size: 1.8rem;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--text-primary);
   letter-spacing: -0.5px;
   margin-bottom: 8px;
 }
 
 .install-section-header p {
-  color: #64748b;
+  color: var(--text-tertiary);
   font-size: 0.95rem;
 }
 
@@ -175,11 +180,13 @@
 }
 
 .install-step-card {
-  background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.05);
+  background: var(--bg-card);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--surface-glass-border);
   border-radius: var(--radius-lg);
   padding: 30px 26px;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
+  box-shadow: var(--neo-outset);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
@@ -201,8 +208,8 @@
 
 .install-step-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
-  border-color: rgba(99, 102, 241, 0.15);
+  box-shadow: var(--neo-outset), var(--shadow-glow-blue);
+  border-color: rgba(99, 102, 241, 0.25);
 }
 
 .install-step-card:hover::before {
@@ -224,7 +231,7 @@
 }
 
 .install-step-card p {
-  color: #334155;
+  color: var(--text-secondary);
   font-size: 0.95rem;
   line-height: 1.6;
 }
@@ -260,14 +267,16 @@
 
 /* ─── Security section (Dark Card) ─────────────────────── */
 .install-security-wrapper {
-  background: #090d16;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-card);
+  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--surface-glass-border);
   border-radius: var(--radius-xl);
   padding: 40px;
   text-align: center;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+  box-shadow: var(--neo-outset);
 }
 
 .install-security-glow {
@@ -298,12 +307,12 @@
   font-family: var(--font-heading);
   font-size: 1.4rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-primary);
   margin-bottom: 12px;
 }
 
 .install-security-content p {
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-size: 0.95rem;
   line-height: 1.6;
 }
@@ -321,20 +330,29 @@
   gap: 8px;
   padding: 12px 28px;
   border-radius: 999px;
-  background: transparent;
-  border: 1px solid #cbd5e1;
-  color: #475569;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--surface-glass-border);
+  color: var(--text-secondary);
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
+  box-shadow: var(--neo-btn-shadow);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
   transition: all 0.2s ease;
+  text-decoration: none;
 }
 
 .back-home-btn:hover {
-  background: #f1f5f9;
-  border-color: #94a3b8;
-  color: #0f172a;
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: var(--text-primary);
+  box-shadow: var(--neo-btn-shadow-hover);
+}
+
+.back-home-btn:active {
+  box-shadow: var(--neo-inset);
 }
 
 /* ─── Responsive Styles ─────────────────────────────────── */
@@ -351,4 +369,57 @@
   .install-security-wrapper {
     padding: 30px 20px;
   }
+}
+
+/* ============================================================
+   DARK MODE OVERRIDES — Install Page
+   ============================================================ */
+[data-theme="dark"] .install-step-card {
+  background: linear-gradient(145deg, #0b1020, #060a15);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow:
+    6px 6px 18px rgba(0, 0, 0, 0.6),
+    -2px -2px 8px rgba(255, 255, 255, 0.02),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .install-step-num-badge {
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.15), rgba(34, 211, 238, 0.1));
+  border: 1px solid rgba(129, 140, 248, 0.25);
+  color: #a5b4fc;
+  box-shadow: 0 0 12px rgba(129, 140, 248, 0.12);
+}
+
+[data-theme="dark"] .install-step-card a {
+  color: #a5b4fc;
+}
+[data-theme="dark"] .install-step-card a:hover {
+  color: #22d3ee;
+}
+
+[data-theme="dark"] .install-tip-box {
+  background: rgba(251, 191, 36, 0.06);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  color: #fcd34d;
+}
+
+[data-theme="dark"] .install-security-wrapper {
+  background: linear-gradient(145deg, #0b1428, #060a15);
+  border: 1px solid rgba(52, 211, 153, 0.18);
+  box-shadow:
+    8px 10px 30px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 60px rgba(16, 185, 129, 0.06);
+}
+
+[data-theme="dark"] .back-home-btn {
+  background: rgba(129, 140, 248, 0.08);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  color: #a5b4fc;
+}
+[data-theme="dark"] .back-home-btn:hover {
+  background: rgba(129, 140, 248, 0.15);
+  border-color: rgba(129, 140, 248, 0.4);
+  color: #ffffff;
+  box-shadow: var(--neo-btn-shadow-hover), 0 0 20px rgba(129, 140, 248, 0.15);
 }

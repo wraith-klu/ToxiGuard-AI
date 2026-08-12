@@ -16,6 +16,10 @@ from app.core.config import settings
 from app.routes.moderation import router as moderation_router
 from app.routes.auth import router as auth_router
 from app.routes.realtime import router as realtime_router
+from app.routes.explain import router as explain_router
+from app.routes.monitoring import router as monitoring_router
+from app.routes.feedback import router as feedback_router
+from app.routes.stream import router as stream_router
 from app.services.model_service import model_service
 
 from database import engine, Base
@@ -33,6 +37,15 @@ async def lifespan(app: FastAPI):
     logger.info(f"ToxiGuard AI v{settings.app_version} starting up")
     logger.info(f"Model status: {model_service.status}")
     logger.info(f"CORS origins: {settings.allowed_origins_list}")
+    
+    # Pre-warm XAI Explainer to avoid lag on first explain query
+    try:
+        from ml.explainability import get_explainer
+        get_explainer(settings.model_dir)
+        logger.info("[Lifespan] XAI Explainer pre-warmed successfully")
+    except Exception as e:
+        logger.warning(f"[Lifespan] Failed to pre-warm XAI explainer: {e}")
+        
     logger.info("=" * 50)
     yield
     # Shutdown
@@ -89,6 +102,10 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(moderation_router)
 app.include_router(realtime_router)
+app.include_router(explain_router)
+app.include_router(monitoring_router)
+app.include_router(feedback_router)
+app.include_router(stream_router)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -111,13 +128,19 @@ def health():
         "version": settings.app_version,
         "model": model_service.status,
         "endpoints": {
-            "predict_full":  "POST /predict",
-            "predict_ml":    "POST /predict/ml",
-            "predict_demo":  "POST /predict/demo",
-            "chat_moderate": "POST /chat/moderate",
-            "analyze_file":  "POST /analyze-file",
-            "auth":          "POST /auth/signup, POST /auth/login",
-            "reset_key":     "POST /auth/reset-key",
-            "docs":          "/docs",
+            "predict_full":     "POST /predict",
+            "predict_ml":       "POST /predict/ml",
+            "predict_demo":     "POST /predict/demo",
+            "chat_moderate":    "POST /chat/moderate",
+            "analyze_file":     "POST /analyze-file",
+            "explain":          "POST /explain  [XAI]",
+            "monitoring_stats": "GET /monitoring/stats  [Drift]",
+            "monitoring_drift": "GET /monitoring/drift  [Drift]",
+            "feedback":         "POST /feedback  [Active Learning]",
+            "feedback_stats":   "GET /feedback/stats",
+            "feedback_queue":   "GET /feedback/queue",
+            "stream":           "WS /ws/stream  [Real-time]",
+            "auth":             "POST /auth/signup, POST /auth/login",
+            "docs":             "/docs",
         },
     }

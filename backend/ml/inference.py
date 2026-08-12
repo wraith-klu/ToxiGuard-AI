@@ -23,6 +23,11 @@ from typing import Optional
 
 from app.core.logger import logger
 
+# When True, the PyTorch fallback is disabled entirely.
+# Set ONNX_ONLY=true in production (Oracle A1 / Docker) to avoid loading
+# the full 2 GB PyTorch package when only model.onnx is present.
+_ONNX_ONLY: bool = os.getenv("ONNX_ONLY", "false").lower() in ("1", "true", "yes")
+
 # ──────────────────────────────────────────────────────────────────────────────
 # CONSTANTS
 # ──────────────────────────────────────────────────────────────────────────────
@@ -95,8 +100,16 @@ class TransformerInference:
             self.tokenizer = None
 
     def _load_model(self) -> None:
-        """Attempt ONNX load, fall back to PyTorch."""
+        """Attempt ONNX load, fall back to PyTorch (unless ONNX_ONLY=true)."""
         if self._try_load_onnx():
+            return
+        if _ONNX_ONLY:
+            logger.error(
+                "[ModelLoad] ONNX load failed and ONNX_ONLY=true — "
+                "PyTorch fallback is DISABLED. "
+                "Ensure model.onnx exists at: %s",
+                self.onnx_path,
+            )
             return
         self._try_load_pytorch()
 

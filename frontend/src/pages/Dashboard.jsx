@@ -14,20 +14,14 @@ import ToxicityChart from "../components/ToxicityChart";
 import FileUpload from "../components/FileUpload";
 import ParticleBackground from "../components/ParticleBackground";
 import CompareMode from "../components/CompareMode";
+import MonitoringDashboard from "../components/MonitoringDashboard";
+import StreamAnalyzer from "../components/StreamAnalyzer";
 
 import "../styles.css";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const toast = useToast();
-
-  // Auth check
-  useEffect(() => {
-    const apiKey = localStorage.getItem("api_key");
-    if (!apiKey) {
-      navigate("/login");
-    }
-  }, [navigate]);
 
   const [text, setText] = useState("");
   const [result, setResult] = useState(null);
@@ -44,10 +38,19 @@ export default function Dashboard() {
 
   const requestIdRef = useRef(0);
 
-  // -------------------------------------------
-  // Real-Time Detection
-  // -------------------------------------------
+  // Auth check — read key on every render (reactive to sign-out)
+  const apiKey = localStorage.getItem("api_key");
+
+  // Redirect if not authenticated — inside useEffect so hooks run unconditionally
   useEffect(() => {
+    if (!apiKey) {
+      navigate("/login");
+    }
+  }, [apiKey, navigate]);
+
+  // Real-Time Detection — must be declared BEFORE any conditional return
+  useEffect(() => {
+    if (!apiKey) return; // skip processing if logged out
     if (!realtime || text.trim().length < 5) {
       setResult(null);
       return;
@@ -83,7 +86,12 @@ export default function Dashboard() {
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, [text, realtime]);
+  }, [text, realtime, apiKey]);
+
+  // Guard: render nothing while redirect is in flight
+  if (!apiKey) {
+    return null;
+  }
 
   // -------------------------------------------
   // Manual Analyze
@@ -148,10 +156,12 @@ export default function Dashboard() {
   };
 
   const tabs = [
-    { id: "analyze", label: "Analyze" },
-    { id: "compare", label: "Comparison Mode" },
-    { id: "batch", label: "Batch Upload" },
-    { id: "history", label: "History" },
+    { id: "analyze",    label: "Analyze" },
+    { id: "compare",    label: "Comparison" },
+    { id: "batch",      label: "Batch Upload" },
+    { id: "stream",     label: "⚡ Live Stream" },
+    { id: "monitoring", label: "📊 Monitoring" },
+    { id: "history",    label: "History" },
   ];
 
   return (
@@ -250,6 +260,12 @@ export default function Dashboard() {
 
         {/* Batch Tab */}
         {activeTab === "batch" && <FileUpload />}
+
+        {/* Stream Tab */}
+        {activeTab === "stream" && <StreamAnalyzer />}
+
+        {/* Monitoring Tab */}
+        {activeTab === "monitoring" && <MonitoringDashboard />}
 
         {/* History Tab */}
         {activeTab === "history" && (

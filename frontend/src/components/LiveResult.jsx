@@ -1,17 +1,22 @@
 import React from "react";
 import ToxicityGauge from "./ToxicityGauge";
 import ExportReport from "./ExportReport";
+import TokenHeatmap from "./TokenHeatmap";
+import FeedbackWidget from "./FeedbackWidget";
 
 // -----------------------------------------------------
 // Highlight abusive words inside text
 // -----------------------------------------------------
 function highlightText(text, abusiveWords = []) {
-  if (!text || abusiveWords.length === 0) return text;
+  if (!text || typeof text !== "string") return "";
+  if (abusiveWords.length === 0) return text;
 
   let highlighted = text;
 
   abusiveWords.forEach((word) => {
-    const regex = new RegExp(`\\b(${word})\\b`, "gi");
+    if (!word) return;
+    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`\\b(${escaped})\\b`, "gi");
     highlighted = highlighted.replace(
       regex,
       `<span class="abusive-word">$1</span>`
@@ -306,7 +311,6 @@ export default function LiveResult({ loading, result, inputText }) {
 
   const categoryLabel = formatCategory(llm?.category);
 
-  // Word count from user input
   const wordsCount = inputText
     ? inputText.trim().split(/\s+/).filter(Boolean).length
     : 0;
@@ -380,6 +384,12 @@ export default function LiveResult({ loading, result, inputText }) {
           </div>
         )}
       </div>
+
+      {/* XAI Token Heatmap */}
+      <TokenHeatmap text={inputText} result={result} />
+
+      {/* Active Learning Feedback */}
+      <FeedbackWidget result={result} inputText={inputText} />
 
       {/* Stats Grid */}
       <div className="kpi-mini-grid">

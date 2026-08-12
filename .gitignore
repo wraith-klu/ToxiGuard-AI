@@ -118,6 +118,9 @@ lerna-debug.log*
 # ─── 5. MACHINE LEARNING & LARGE DATA ────────────────────
 # Local dataset directories
 backend/data/
+backend/ml/models/*
+!backend/ml/models/.gitkeep
+backend/abuse_model.joblib
 *.csv
 *.tsv
 *.jsonl
@@ -134,11 +137,19 @@ backend/data/
 *.bin
 *.model
 
-# ─── 6. CHROME EXTENSION ─────────────────────────────────
+# ─── 6. CHROME EXTENSION & ARCHIVES ──────────────────────
 *.zip
+*.tar
+*.gz
 *.crx
 *.pem
+extension.zip
 !extension/
+
+# Local binaries & generated executables
+git
+main
+toxiguard.db
 
 # ─── 7. IDEs & EDITORS ───────────────────────────────────
 # VS Code

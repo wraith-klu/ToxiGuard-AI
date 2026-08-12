@@ -22,6 +22,8 @@ from utils.abuse_words import detect_abusive_tokens, get_abuse_severity
 from utils.llm_guard import analyze_toxicity_llm
 from app.services.model_service import model_service
 
+from app.services.calibration import calibration_service
+
 from models import User
 from database import get_db
 
@@ -81,8 +83,8 @@ def moderate_chat(
         ml_categories = [str(c).lower() for c in ml_result.get("detected_categories", [])]
 
     # ── FAST DECISION ─────────────────────────────────────────────────────────
-    # Threshold 0.5 — DeBERTa is well-calibrated at this level
-    toxic = rules_triggered or ml_score >= 0.5
+    # Threshold — dynamically adjusted based on feedback calibration
+    toxic = rules_triggered or ml_score >= calibration_service.get_threshold()
 
     # Critical rule always overrides
     if rules_triggered and rules_severity == "critical":

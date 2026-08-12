@@ -35,6 +35,7 @@ export default function Login() {
 
       if (res.ok && data.api_key) {
         localStorage.setItem("api_key", data.api_key);
+        localStorage.setItem("user_email", email);
         if (data.token) localStorage.setItem("token", data.token);
 
         toast.success("Welcome back!");

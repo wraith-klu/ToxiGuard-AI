@@ -1,0 +1,309 @@
+/* =====================================================
+   TOXIGUARD — SIGNUP PAGE
+   Premium blend of Neomorphism and Glassmorphism
+===================================================== */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background glow */
+.auth-page::before {
+  content: "";
+  position: absolute;
+  top: -200px;
+  right: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle,
+      rgba(99, 102, 241, 0.08),
+      transparent 60%);
+  pointer-events: none;
+}
+
+.auth-page::after {
+  content: "";
+  position: absolute;
+  bottom: -200px;
+  left: -100px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle,
+      rgba(56, 189, 248, 0.06),
+      transparent 60%);
+  pointer-events: none;
+}
+
+/* Main Container: Combining frosted glass and neomorphic soft outset */
+.auth-container {
+  display: flex;
+  width: 100%;
+  max-width: 800px;
+  min-height: 480px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--surface-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--surface-glass-border);
+  box-shadow: var(--neo-outset);
+  position: relative;
+  z-index: 1;
+  animation: scaleIn 0.4s ease both;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.auth-container:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--neo-outset), var(--shadow-glow-blue);
+}
+
+/* Left Card (Form): Glassmorphic panel with inner styling */
+.auth-card {
+  width: 50%;
+  padding: 40px 32px;
+  background: rgba(255, 255, 255, 0.4);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid var(--surface-glass-border);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="dark"] .auth-card {
+  background: rgba(15, 23, 42, 0.4);
+}
+
+/* Brand */
+.auth-brand {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.auth-brand-icon {
+  font-size: 2.5rem;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.auth-brand-text {
+  font-size: 1.8rem;
+  background: linear-gradient(135deg, #38bdf8, #6366f1, #8b5cf6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Title */
+.auth-card h2 {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+
+/* Form */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Neomorphic inset inputs with frosted glass background */
+.auth-form input {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--surface-glass-border);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  box-shadow: var(--neo-inset);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .auth-form input {
+  background: rgba(15, 23, 42, 0.4) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  box-shadow: var(--neo-inset) !important;
+}
+
+.auth-form input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: var(--neo-inset), 0 0 12px rgba(56, 189, 248, 0.2);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .auth-form input:focus {
+  background: rgba(15, 23, 42, 0.7) !important;
+}
+
+/* Submit Button: Neomorphic outset button with glowing gradient */
+.auth-form button[type="submit"] {
+  margin-top: 6px;
+  padding: 12px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--gradient-primary);
+  color: var(--text-inverse);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: var(--neo-btn-shadow), 0 8px 20px rgba(56, 189, 248, 0.2);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-form button[type="submit"]:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--neo-btn-shadow-hover), 0 12px 28px rgba(99, 102, 241, 0.4);
+}
+
+.auth-form button[type="submit"]:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--neo-inset);
+}
+
+.auth-form button[type="submit"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Alternate Link */
+.auth-alt {
+  margin-top: 16px;
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.auth-link {
+  color: var(--accent-blue);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+/* Back Button: Neomorphic soft border and shadow */
+.back-home-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--surface-glass-border);
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  cursor: pointer;
+  box-shadow: var(--neo-btn-shadow);
+  transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .back-home-btn {
+  background: rgba(15, 23, 42, 0.2);
+}
+
+.back-home-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: var(--text-primary);
+  box-shadow: var(--neo-btn-shadow-hover);
+}
+
+[data-theme="dark"] .back-home-btn:hover {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.back-home-btn:active {
+  box-shadow: var(--neo-inset);
+}
+
+/* Right Image Panel */
+.auth-right {
+  width: 50%;
+  position: relative;
+  background: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.auth-right img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Image Overlay Gradient */
+.auth-right::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+      rgba(6, 8, 15, 0.3),
+      rgba(99, 102, 241, 0.1));
+  pointer-events: none;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .auth-container {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .auth-card,
+  .auth-right {
+    width: 100%;
+  }
+
+  .auth-right {
+    order: -1;
+    height: 200px;
+  }
+
+  .auth-card {
+    padding: 36px 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 28px 20px;
+  }
+
+  .auth-card h2 {
+    font-size: 1.5rem;
+  }
+
+  .auth-right {
+    height: 160px;
+  }
+}
