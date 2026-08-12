@@ -1,8 +1,9 @@
 # ToxiGuard AI v3.0 — System Design Overview
 
-Welcome to the system architecture of **ToxiGuard AI v3.0**! 
+Welcome to the system architecture of **ToxiGuard AI v3.0**!
 
 This document breaks down how the entire system works in a simple, visual way. The system is divided into three main components:
+
 1. The **Browser Extension** (running on your device)
 2. The **React Dashboard** (the web application)
 3. The **AI Backend** (the intelligence engine)
@@ -19,6 +20,7 @@ This document breaks down how the entire system works in a simple, visual way. T
 ---
 
 ## 1. Browser Extension (The Client)
+
 The browser extension is the part of the system that lives in Chrome or Edge. It is built using modern **Manifest V3** standards.
 
 * **What it does**: It watches the web pages you visit (like Instagram or Twitter).
@@ -26,6 +28,7 @@ The browser extension is the part of the system that lives in Chrome or Edge. It
 * **Special Feature**: It has a "Side Panel" and "Floating Button" that let you highlight any text on any website to check if it's safe.
 
 ## 2. AI Backend (The Brain)
+
 When the browser extension finds text, it sends it to the **Python Backend**. To make sure we don't accidentally block harmless text (false positives), the text passes through a **3-Layer Hybrid Pipeline**:
 
 1. **Layer 1: Rule Engine (The Bouncer)**
@@ -38,6 +41,7 @@ When the browser extension finds text, it sends it to the **Python Backend**. To
 * **The Ensemble Engine**: Finally, the system tallies the "votes" from all three layers to make a final, highly accurate decision on whether to block the text.
 
 ## 3. React Dashboard (The Control Center)
+
 This is the beautiful web interface built with React.
 
 * **What it does**: It acts as your control center.
