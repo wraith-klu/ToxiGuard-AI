@@ -74,7 +74,23 @@ class PerturbationExplainer:
 
     def _load(self) -> None:
         import os
+
+        if not os.path.isdir(self.model_dir):
+            logger.warning(
+                f"[XAI] PerturbationExplainer load failed: Directory '{self.model_dir}' not found. "
+                "Explainability feature will be disabled."
+            )
+            self._loaded = False
+            return
+
         onnx_path = os.path.join(self.model_dir, "model.onnx")
+        if not os.path.exists(onnx_path):
+            logger.warning(
+                f"[XAI] PerturbationExplainer load failed: ONNX model file '{onnx_path}' not found. "
+                "Explainability feature will be disabled."
+            )
+            self._loaded = False
+            return
 
         try:
             import onnxruntime as ort
