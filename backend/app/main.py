@@ -41,8 +41,11 @@ async def lifespan(app: FastAPI):
     # Pre-warm XAI Explainer to avoid lag on first explain query
     try:
         from ml.explainability import get_explainer
-        get_explainer(settings.model_dir)
-        logger.info("[Lifespan] XAI Explainer pre-warmed successfully")
+        explainer = get_explainer(settings.model_dir)
+        if explainer.is_ready:
+            logger.info("[Lifespan] XAI Explainer pre-warmed successfully")
+        else:
+            logger.warning("[Lifespan] XAI Explainer pre-warm skipped: Explainer not ready (model files missing)")
     except Exception as e:
         logger.warning(f"[Lifespan] Failed to pre-warm XAI explainer: {e}")
         
